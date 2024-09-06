@@ -1,0 +1,39 @@
+---
+title: "Week2_LectureB_script"
+author: "Micaela Chapuis"
+date: "2024-09-06"
+output: html_document
+---
+
+### Header 
+This is my first script (for OCN 682). I am learning how to import data
+Created by Micaela Chapuis
+Created on 2024-09-06
+
+
+### Load libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+### Read in data
+```{r}
+WeightData <- read_csv(here("Week2", "Data", "weightdata.csv"))
+```
+
+
+### Data Analysis
+```{r}
+head(WeightData) #looking at the top 6 lines of the dataframe
+```
+
+```{r}
+tail(WeightData) #looking at the bottom 6 lines of the dataframe
+```
+
+```{r}
+view(WeightData) #open a new window to look at the entire dataframe
+```
+
+

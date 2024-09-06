@@ -7,7 +7,9 @@ output: html_document
 
 ### Header 
 This is my first script (for OCN 682). I am learning how to import data
+
 Created by Micaela Chapuis
+
 Created on 2024-09-06
 
 

@@ -19,7 +19,7 @@ library(tidyverse)
 library(here)
 ```
 
-### Read in data
+### Read in Data
 ```{r}
 WeightData <- read_csv(here("Week2", "Data", "weightdata.csv"))
 #here() takes us to the folder where our project is (in this case, "Chapuis")

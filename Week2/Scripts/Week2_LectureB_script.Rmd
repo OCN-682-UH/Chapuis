@@ -22,6 +22,9 @@ library(here)
 ### Read in data
 ```{r}
 WeightData <- read_csv(here("Week2", "Data", "weightdata.csv"))
+#here() takes us to the folder where our project is (in this case, "Chapuis")
+#Then we specify what folder(s) to go to, then file name
+#This code says “read the csv file named weightdata.csv that is in the folder Data, within Week2”
 ```
 
 

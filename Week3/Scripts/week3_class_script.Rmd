@@ -1,0 +1,146 @@
+---
+title: "week3_class_script"
+author: "Micaela Chapuis"
+date: "2024-09-10"
+output: html_document
+---
+### Week 3 Lecture Script
+This script was created during Week 3 Tuesday Lecture. 
+In this script, we create a plot using penguin data from the Palmer Archipelago.
+
+##### Reading in necessary libraries
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+```
+
+##### Looking at data
+```{r}
+view(penguins) #opens data in a separate tab
+head(penguins) #gives first 6 lines
+tail(penguins) #gives last 6 lines
+glimpse(penguins) #shows what type of data is in each column and the first few
+```
+
+##### Making a plot
+Going through the different steps of building up a plot
+```{r}
+ggplot(data = penguins) #this should give empty box because we're not mapping anything
+```
+
+```{r}
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm)) # this one adds an x variable but because we don't have a y (or tell it how to                                            plot it) it's still an empty box
+```
+
+```{r}
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm)) +   # added a y
+  geom_point()    # this is the type of geom we want it to use
+```
+
+From here on, I will keep adding the rest of the code to this chunk
+```{r}
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) + #this colors the points by species, has to go inside aes argument
+  geom_point() +
+  labs(title = "Bill depth and length",   # adding title label
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", # subtitle label
+       x = "Bill depth (mm)",  # x axis label
+       y = "Bill length (mm)",  # y axis label
+       color = "Species",  # legend label
+       caption = "Source: Palmer Station LTER / palmerpenguins package") + #caption with data sources
+  scale_color_viridis_d()   # adding a discrete color scale (designed to be preceived by viewers with common forms of    
+                            #color blindness)
+```
+
+Now I make a new copy of the plot so I can practice messing with different aesthetic settings
+
+```{r}
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species,
+                     shape = island, # added different shapes for different islands 
+                     size = body_mass_g, # use different size points for different penguin body masses
+                     alpha = flipper_length_mm)) + # change transparency for different flipper lengths
+  geom_point() +
+  labs(title = "Bill depth and length",  
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", 
+       y = "Bill length (mm)", 
+       color = "Species", 
+       shape = "Island", # added the legend to be Island for the different shapes
+       size = "Body Mass (g)", # adding legend for different sizes
+       alpha = "Flipper Length (mm)",  # adding legend for the different transparencies
+       caption = "Source: Palmer Station LTER / palmerpenguins package") + 
+  scale_color_viridis_d()  
+
+#she ugly
+```
+
+
+#### Mapping vs Setting
+In the previous chunk, size and alpha, etc were in the aesthetics (Mapping) so they were determined by variables
+Here they're going to be a setting, so manually changed, not determined by variable values
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y = bill_length_mm)) +
+  geom_point(size = 2, alpha = 0.5)  # all the points will be size 2 and alpha 0.5 because it doesn't depend on what a variable's value is
+```
+
+
+
+#### Faceting
+#####Facet_grid()
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y=bill_length_mm)) +
+  geom_point() +
+  facet_grid(species~sex) #this will a grid with species as rows and sex as columns
+# here we're not adding all the things that make it pretty (like labels) but we generally should
+# grid will determine the dimensions for us
+```
+
+Now we flip rows and columns
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y=bill_length_mm)) +
+  geom_point() +
+  facet_grid(sex~species) #this will a grid with sex as rows and species as columns
+```
+##### Facet_wrap 
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y=bill_length_mm)) +
+  geom_point() +
+  facet_wrap(~ species) # this a ribbon where we determine the dimensions, grid will determine dimensions for us
+```
+
+Specify number of columns
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y=bill_length_mm)) +
+  geom_point() +
+  facet_wrap(~ species, ncol = 2) #specify that we want to make it 2 columns 
+```
+
+##### Facet and color 
+```{r}
+ggplot(penguins,
+       aes(x=bill_depth_mm,
+           y=bill_length_mm,
+           color = species)) +
+  geom_point() +
+  scale_color_viridis_d() + # up to here it's the same as before
+  facet_grid(species~sex) + # we added the facet grid by species and sex 
+  guides(color = FALSE) #by setting colors = false we delete the color legend because the facet already separates the colors by species
+```

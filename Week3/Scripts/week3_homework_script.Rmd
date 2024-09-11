@@ -32,9 +32,9 @@ Then used https://colorkit.co/ to get a darker shade based on my hex codes for c
 ```{r}
 penguins %>% filter(!is.na(sex)) %>% # decided to filter out the penguins for which sex wasn't recorded
   ggplot(aes(x = body_mass_g, y = species, fill = sex, color = sex)) + # using fill AND color because I also want to change the color of the outline
-  geom_density_ridges(alpha = 0.85) + # this is the geom for the density ridges 
+  geom_density_ridges(alpha = 0.85) + # this is the geom for the density ridges - alpha makes them a bit transparent so I can see overlapping ridges
   labs(x = "Body Mass (g)", # setting all the axis and legend titles
-       y = "Species",,
+       y = "Species",
        fill = "Sex") +
   scale_fill_manual(labels = c("Female", "Male"), values = c("#DA7297", "#7297da")) + # first part sets the labels to Female and Male (bc they were all lowercase in original data), second part sets the colors for each label (order of labels and hex codes matters!!)
   scale_color_manual(values = c("#a45471", "#536fa2")) + # I want the outline of the ridges to be a color slightly darker than the fill color (instead of default black)

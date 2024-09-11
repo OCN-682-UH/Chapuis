@@ -11,17 +11,44 @@ This script contains the code for Assignment 3, for which we create a plot with 
 
 #### Loading in Libraries
 ```{r}
+library(here) # will use this to save my figure in my designated Output folder for week 3
 library(palmerpenguins) # this library contains the data we will be using to create a plot
 library(tidyverse)
+library(ggridges) # this library is for making ridgeline plots
+library(ggthemes) # this library contains different themes we can use for our plot (choose from https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/ )
 ```
 
-#### Viewing data 
+#### Viewing data
+This data (penguins) comes from the 'palmerpenguins' library
 ```{r}
 view(penguins) # this will open the data in a different tab
 ```
 
 #### Making a plot 
-```{r}
+I want a plot of the size (body mass) distribution of different species of penguins, but I also want to see if there are differences in size distribution between males and females (and I think density ridge plots look neat)
 
+Colors picked from color palettes on https://colorhunt.co/
+Then used https://colorkit.co/ to get a darker shade based on my hex codes for contour lines
+```{r}
+penguins %>% filter(!is.na(sex)) %>% # decided to filter out the penguins for which sex wasn't recorded
+  ggplot(aes(x = body_mass_g, y = species, fill = sex, color = sex)) + # using fill AND color because I also want to change the color of the outline
+  geom_density_ridges() + # this is the geom for the density ridges 
+  labs(x = "Body Mass (g)", # setting all the axis and legend titles
+       y = "Species",,
+       fill = "Sex") +
+  scale_fill_manual(labels = c("Female", "Male"), values = c("#DA7297", "#7297da")) + # first part sets the labels to Female and Male (bc they were all lowercase in original data), second part sets the colors for each label (order of labels and hex codes matters!!)
+  scale_color_manual(values = c("#a45471", "#536fa2")) + # I want the outline of the ridges to be a color slightly darker than the fill color (instead of default black)
+  guides(fill = guide_legend(override.aes = list(linetype = 0)), #gets rid of black contour line in the fill legend squares
+         color= FALSE) + # I had "color" in aes so I could change the outline color manually, but I don't want a second legend for it because it's the same as the fill legend (by sex) so this removes the "color" legend
+  
+  theme_minimal() + # the theme I chose (white background, only grid lines)
+  theme(axis.title = element_text(size = 12), # manually making all the text bigger than the theme makes it
+        axis.text = element_text(size = 11),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 11))
+
+
+#ggsave(here("Week3", "Output", "penguins.jpeg"),
+#       width = 7, height = 5)
 ```
 

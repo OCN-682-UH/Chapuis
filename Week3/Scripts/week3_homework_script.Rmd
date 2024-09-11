@@ -42,13 +42,12 @@ penguins %>% filter(!is.na(sex)) %>% # decided to filter out the penguins for wh
          color= FALSE) + # I had "color" in aes so I could change the outline color manually, but I don't want a second legend for it because it's the same as the fill legend (by sex) so this removes the "color" legend
   
   theme_minimal() + # the theme I chose (white background, only grid lines)
-  theme(axis.title = element_text(size = 12), # manually making all the text bigger than the theme makes it
+  theme(axis.title = element_text(size = 12), # manually making all the text bigger than the default size for the theme
         axis.text = element_text(size = 11),
         legend.title = element_text(size = 12),
         legend.text = element_text(size = 11))
 
 
-#ggsave(here("Week3", "Output", "penguins.jpeg"),
-#       width = 7, height = 5)
+ggsave(here("Week3", "Output", "penguins.jpeg"), width = 7, height = 5)
 ```
 

@@ -1,0 +1,27 @@
+---
+title: "week3_homework_script"
+author: "Micaela Chapuis"
+date: "2024-09-11"
+output: html_document
+---
+
+#### Code Description
+This script contains the code for Assignment 3, for which we create a plot with penguin data from the package "palmerpenguins".
+
+
+#### Loading in Libraries
+```{r}
+library(palmerpenguins) # this library contains the data we will be using to create a plot
+library(tidyverse)
+```
+
+#### Viewing data 
+```{r}
+view(penguins) # this will open the data in a different tab
+```
+
+#### Making a plot 
+```{r}
+
+```
+

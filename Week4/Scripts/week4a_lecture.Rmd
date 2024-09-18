@@ -1,5 +1,5 @@
 ---
-title: "week4_lecture"
+title: "week4a_lecture"
 author: "Micaela Chapuis"
 date: "2024-09-17"
 output: html_document

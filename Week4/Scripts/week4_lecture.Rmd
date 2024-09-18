@@ -1,0 +1,185 @@
+---
+title: "week4_lecture"
+author: "Micaela Chapuis"
+date: "2024-09-17"
+output: html_document
+---
+
+# Week 4 Tuesday Lecture
+## Plotting more penguin data!
+
+Load libraries
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(here)
+```
+
+Loading data (already loaded because it's from a package, but we'll look at it)
+```{r}
+glimpse(penguins)
+```
+
+## Analysis
+
+### Filtering
+First, look at data to make sure we know what our data looks like
+```{r}
+head(penguins)
+```
+
+Filter for only females
+```{r}
+filter(.data = penguins, sex == "female") 
+```
+
+Filter for penguins measured in 2008
+```{r}
+filter(penguins, year == 2008) # because it's numeric, we don't have to use quotes
+```
+
+
+Filter for penguins that have a body mass greater than 5000
+```{r}
+filter(penguins, body_mass_g > 5000)
+```
+
+Filter females greater than 5000 g
+```{r}
+filter(penguins, sex == "female", body_mass_g > 5000)
+```
+
+#### Boolean Operators
+Same as above
+```{r}
+filter(penguins, sex == "female" & body_mass_g > 5000)
+```
+
+Now, using filter and boolean logic for:
+
+Penguins collected in either 2008 or 2009
+```{r}
+filter(penguins, year == 2008 | year == 2009)
+# filter(penguins, year %in% c("2008", "2009"))   # alternative option
+```
+
+Penguins that are not from the island Dream
+```{r}
+filter(penguins, !(island == "Dream"))
+# filter(penguins, island != "Dream")  # "more common way" lol
+```
+
+
+Penguins in the species Adelie and Gentoo
+```{r}
+filter(penguins, species %in% c("Gentoo", "Adelie")) # using %in% is best practice when picking multiple things
+```
+
+
+### Mutate
+
+```{r}
+data <- mutate(penguins, 
+               body_mass_kg = body_mass_g/1000, # convert mass to kg
+               bill_length_depth = bill_length_mm/bill_depth_mm) # calculate ratio of bill length to depth
+
+data
+```
+
+You can mutating multiple columns at once based on some criterion with:  
+mutate_if(), mutate_at(), mutate_all()
+
+link with examples in slides
+
+#### ifelse()
+Doing conditional tests with mutate()
+ifelse() only allows for 2 things, there is a function called case_when() for multiple things
+```{r}
+data <- mutate(penguins,
+               after_2008 = ifelse(year>2008, "After 2008", "Before 2008"))
+
+# if year is greater than 2008, in the column write After 2008, otherwise write Before 2008
+data
+```
+
+
+Try:
+Create a column to add flipper length and body mass together
+Use mutate and ifelse to create a new column where body mass greater than 4000 is labeled as big and everything else is small
+```{r}
+data2 <- mutate(penguins, 
+                flipper_plus_mass = flipper_length_mm + body_mass_g,
+                thicc_penguins = ifelse(body_mass_g>4000, "Big boi", "Smol boi"))
+data2
+```
+
+
+### Pipe!!
+pipe means "and then do"
+
+```{r} 
+penguins %>% # use penguins dataframe
+  filter(sex == "female") %>%  #select female
+  mutate(log_mass = log(body_mass_g)) #calculate log biomass
+```
+
+### Select
+selecting certain columns to remain in the dataframe
+```{r}
+penguins %>%
+  filter(sex == "female") %>%
+  mutate(log_mass = log(body_mass_g)) %>%
+  select(species, island, sex, log_mass)
+```
+
+Can also use select to rename our columns
+```{r}
+penguins %>%
+  filter(sex == "female") %>%
+  mutate(log_mass = log(body_mass_g)) %>%
+  select(Species = species, island, sex, log_mass)
+```
+
+### Summarize
+
+```{r}
+penguins %>%
+  summarise(mean_flipper = mean(flipper_length_mm, na.rm = TRUE))
+```
+
+```{r}
+penguins %>%
+  summarise(mean_flipper = mean(flipper_length_mm, na.rm = TRUE),
+            min_flipper = min(flipper_length_mm, na.rm = TRUE))
+```
+
+### group_by
+Summarizing values by certain groups
+group_by() by itself doesn't do anything, but it is powerful when put before summarize.
+
+```{r}
+penguins %>%
+  group_by(island, sex) %>%
+  summarise(max_bill_length = max(bill_length_mm, na.rm = TRUE),
+            mean_bill_length = mean(bill_length_mm, na.rm = TRUE))
+```
+
+
+### Removing NAs
+drop_na() drops rows with NAs from a specific column
+
+```{r}
+penguins %>%
+  drop_na(sex) %>% 
+  group_by(island, sex) %>% 
+  summarise(mean_bill_length = mean(bill_length_mm, na.rm = TRUE))
+```
+
+### Pipe into a ggplot
+```{r}
+penguins %>%
+  drop_na(sex) %>%
+  ggplot(aes(x = sex, y = flipper_length_mm)) +
+    geom_boxplot()
+```
+

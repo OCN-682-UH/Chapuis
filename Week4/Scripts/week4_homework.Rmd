@@ -30,31 +30,37 @@ head(penguins)
 ## Analysis
 
 ### Part 1
+Calculating mean and variance of penguin body mass, grouped by species, island and sex, and removing NAs
 ```{r}
 data <- penguins %>%  #storing the results in a df called data
-          drop_na(sex) %>%  # dropping NAs only from sex because I know there's no NAs in species or island
+          drop_na(sex, island, species) %>%  # dropping NAs from all 3 columns just in case
           group_by(species, island, sex) %>% # grouping by species, island, and sex
           summarise(mean_mass = mean(body_mass_g, na.rm = TRUE), # calculating mean of body mass after grouping
-                    mass_variance = var(body_mass_g, na.rm = TRUE)) # calculting variance of body mass after grouping
+                    mass_variance = var(body_mass_g, na.rm = TRUE)) # calculating variance of body mass after grouping
 
 data # viewing our data to check if it worked
 ```
 
 ### Part 2
+Filtering out male penguins, calculating the log body mass, selecting only the columns for species, island, sex, and log body mass. Then using these data to make a plot and save it in the Week 4 Output folder.
 ```{r}
 penguins %>%
-  filter(!(sex == "male")) %>%  # excluding males 
+  filter(!(sex == "male")) %>%  # excluding just males (didn't say anything about excluding NAs or only including females)
   mutate(log_mass = log(body_mass_g)) %>% # calculating log body mass
   select(species, island, sex, log_mass) %>% # selecting only columns for species, island, sex, and log body mass
-  ggplot(aes(x = island, y = log_mass, fill = species)) + # creating a plot using these data
-    geom_violin() + 
-    labs(x = "Island",
+  ggplot(aes(x = island, y = log_mass, fill = species)) + # creating a plot using these data, colored by species
+    geom_violin() + # adding violin plot geom
+    labs(x = "Island", # setting labels
          y = "Log(Body mass (g))",
-         fill = "Sex") +
-  theme_bw() +
-  theme(axis.title = element_text(size = 12), # manually making all the text bigger
-        axis.text = element_text(size = 11),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 11))
+         fill = "Species") +
+    scale_fill_viridis_d() + # setting color scale for the species fill
+    theme_bw() + # setting a nice theme
+    theme(axis.title = element_text(size = 14, face = "bold"), # manually making axis titles font size bigger + bold
+        axis.text = element_text(size = 13, face = "italic"), #making axis text bigger + italic
+        legend.title = element_text(size = 14, face = "bold"), # making legend title bigger + bold
+        legend.text = element_text(size = 13), # making legend text bigger
+        legend.position = "top") # moving the legend to the top
+
+ggsave(here("Week4", "Output", "w4a_homework_plot.jpeg"), width = 7, height = 5)
 ```
 

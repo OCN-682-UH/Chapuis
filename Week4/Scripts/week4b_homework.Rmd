@@ -94,40 +94,25 @@ ChemData_day_long %>%
 
 
 ## Plot! 
-We are using Day only data, and we only want to look at relationships between Temperature, pH and TA
+We are using Day only data, and we only want to look at relationships between Temperature, pH and TA (by site)
 Using package "GGally"
 Following: https://unc-libraries-data.github.io/R-Open-Labs/Extras/ggally/ggally.html
 
 ```{r}
 ChemData_day_select %>%
   ggpairs(columns = c("Temp_in", "pH", "TA"),  # this specifies which variables we want in our columns
-          diag = list(continuous = "densityDiag"), # diagonal is density plot
+          ggplot2::aes(color = Site), # color by site
+          diag = list(continuous = wrap("densityDiag", alpha = 0.6)), # diagonal is density plot, with some transparency bc of the overlap
           upper = list(continuous = "blank"), # the plots above the diagonal will just be blank
-          lower = list(continuous = wrap("smooth", method = "lm", alpha = 0.7)), # plots below diagonal will be a scatterplot with a geom_smooth (points slightly transparent to see things better)
+          lower = list(continuous = wrap("smooth", method = "lm", alpha = 0.6)), # plots below diagonals will be a scatterplot with a geom_smooth by Site
           columnLabels = c("Temperature", "pH", "Total Alkalinity"), # change names of columns
-          switch = "both") + # switches labels from top/right to bottom/left
-  theme_bw() 
-
-ggsave(here("Week4", "Output", "w4b_homework_plot.jpeg"), width = 7, height = 5)
-```
-
-
-
-
-## Extra plot!
-(Another version of the plot with color by Site but I can't get the legend (by site) to work and it's 10 pm and I'm too lazy to do the workaround way of getting a legend from another plot and using a facet grid to place it where I want next to this plot, so this version will just live in here because I think it looks cool and didn't want to delete it) 
-```{r}
-ChemData_day_select %>%
-  ggpairs(columns = c("Temp_in", "pH", "TA"),  # this specifies which variables we want in our columns
-          ggplot2::aes(color = Site, alpha = 0.7), # color by site and make things a bit transparent to see better
-          diag = list(continuous = "densityDiag"), # diagonal is density plot, with some transparency bc of the overlap
-          upper = list(continuous = "blank"), # the plots above the diagonal will just be blank
-          lower = list(continuous = wrap("smooth", method = "lm")), # plots below diagonals will be a scatterplot with a geom_smooth by Site
-          columnLabels = c("Temperature", "pH", "Total Alkalinity"), # change names of columns
-          legends = TRUE,
+          legend = 1, # this makes the legend appear I guess? 
           switch = "both") + # switches labels from top/right to bottom/left
   theme_bw() + 
+  labs(title = "Relationships between Temperature, pH, and Total Alkalinity in the Daytime" ) +
   scale_color_manual(values = c("#2a2550", "#e04d01")) + # changes color of the points in scatterplots
-  scale_fill_manual(values = c("#2a2550", "#e04d01"))  # changes color of the density plots
+  scale_fill_manual(labels = c("Black Point", "Wailupe"), values = c("#2a2550", "#e04d01"))  # set labels for legend, changes color of the density plots
+
+
 ```
 

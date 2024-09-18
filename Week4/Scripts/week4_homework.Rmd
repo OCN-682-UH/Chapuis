@@ -1,12 +1,12 @@
 ---
-title: "week4_homework"
+title: "week4a_homework"
 author: "Micaela Chapuis"
 date: "2024-09-18"
 output: html_document
 ---
 
 ## Code Description
-This script contains the code for Assignment 4. 
+This script contains the code for Assignment 4a. 
 There are 2 parts of this script: 
 For part 1 we calculate the mean and variance of penguin body mass by species, island, and sex without any NAs.
 For part 2 we filter out male penguins, then calculate the log body mass, then select only the columns for species, island, sex, and log body mass. Then we use these data to make a plot with clean and clear labels and that follows best practices. The plot is saved in the Week 4 Output folder.
@@ -20,7 +20,7 @@ library(here)
 ```
 
 
-##Loading in data
+## Loading in data
 In this case, data comes from palmerpenguins package, so here we'll just look at it
 ```{r}
 head(penguins)

@@ -115,7 +115,7 @@ ggsave(here("Week4", "Output", "w4b_homework_plot.jpeg"), width = 7, height = 5)
 
 
 
-Another version of the plot with color by Site but I can't get the legend (by site) to work and it's 10 pm and I'm too lazy to do the workaround way of getting a legend from another plot and using a facet grid to place it where I want next to this plot, so this version will just live in here because I think it looks cool and didn't want to delete it
+(Another version of the plot with color by Site but I can't get the legend (by site) to work and it's 10 pm and I'm too lazy to do the workaround way of getting a legend from another plot and using a facet grid to place it where I want next to this plot, so this version will just live in here because I think it looks cool and didn't want to delete it)
 ```{r}
 ChemData_day_select %>%
   ggpairs(columns = c("Temp_in", "pH", "TA"),  # this specifies which variables we want in our columns

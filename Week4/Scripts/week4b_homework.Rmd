@@ -1,0 +1,133 @@
+---
+title: "week4b_homework"
+author: "Micaela Chapuis"
+date: "2024-09-18"
+output: html_document
+---
+
+## Code Description
+This script contains the code for Assignment 4b.
+
+The assignment details are below: 
+> Using the chemistry data:
+ *Create a new clean script
+ *Remove all the NAs
+ *Separate the Tide_time column into appropriate columns for analysis
+ *Filter out a subset of data (your choice)
+ *Use either pivot_longer or pivot_wider at least once
+ *Calculate some summary statistics (can be anything) and export the csv file into the output folder
+ *Make any kind of plot (it cannot be a boxplot) and export it into the output folder
+ *Make sure you comment your code and your data, outputs, and script are in the appropriate folders
+
+
+## Loading libraries
+```{r}
+library(tidyverse)
+library(here)
+library(GGally) # for our correlogram
+```
+
+# Load data
+```{r}
+ChemData <- read_csv(here("Week4", "Data", "chemicaldata_maunalua.csv"))
+```
+
+Looking at it for inspiration
+```{r}
+glimpse(ChemData)
+```
+
+## Data Cleaning
+I personally hate really long chunks with a lot of functions going on so I will be breaking stuff up into separate chunks 
+
+
+Removing NAs and separating Tide_time column into two (Tide and Time)
+```{r}
+ChemData_clean <- ChemData %>%
+  drop_na() %>% # filters out all rows that aren't complete (so filters out NAs)
+  separate(col = Tide_time, # choosing the tide_time column to separate
+           into = c("Tide", "Time"), # say what two columns we want to separate it into (tide and time)
+           sep = "_", # use the _ as the separator
+           remove = FALSE) # this makes it so we keep the original tide_time column just in case
+
+ChemData_clean #viewing it just to check it
+```
+
+Filtering out a subset of the data: keeping only the Day data
+```{r}
+ChemData_day <- ChemData_clean %>% filter(Time == "Day") #keeping only rows of data collected during the Day
+ChemData_day # viewing
+```
+
+## Analysis
+
+I only want Temp, pH, and TA so I will select first just to make the output not too messy - storing it into its own df because I will use it later
+```{r}
+ChemData_day_select <- ChemData_day %>%
+  select(Site, Season, Tide, Time, Temp_in, pH, TA)# keeping only the variables I want plus things I want to group by later (site, season, tide) and keeping time just for fun even though it's only Day
+
+ChemData_day_select
+```
+
+Data is currently in Wide format, I will pivot to long for summary statistics
+```{r}
+ChemData_day_long <- ChemData_day_select %>%
+  pivot_longer(cols = c(Temp_in, pH, TA), # the columns I want to pivot (temp, pH, TA)
+              names_to = "Variables",  # the names of the new column with the variable (previous columns) names
+              values_to = "Values") # names of the new column with all the values
+
+ChemData_day_long
+```
+
+Summary Statistics: 
+I want the average of temperature, pH and TA by tide, season, and site (and only for Day times but we already filtered that earlier)
+For each Site at each season at each tide (low vs high) combination we'll get 3 rows (mean, var and sd of temp, pH, and TA)
+We will export this as a csv into the output folder
+```{r}
+ChemData_day_long %>%
+  group_by(Site, Season, Tide, Variables) %>% # group by everything we want (Site, Season, Tide)
+  summarise(mean_vals = mean(Values, na.rm = TRUE), # get mean
+            var_vals = var(Values, na.rm = TRUE), # get variance
+            sd_vals = sd(Values, na.rm = TRUE)) %>% # get sd
+  write_csv(here("Week4", "Output", "w4b_homework_summary_output.csv")) #export as csv to the right folder
+```
+
+
+## Plot! 
+We are using Day only data, and we only want to look at relationships between Temperature, pH and TA
+Using package "GGally"
+Following: https://unc-libraries-data.github.io/R-Open-Labs/Extras/ggally/ggally.html
+
+```{r}
+ChemData_day_select %>%
+  ggpairs(columns = c("Temp_in", "pH", "TA"),  # this specifies which variables we want in our columns
+          diag = list(continuous = "densityDiag"), # diagonal is density plot
+          upper = list(continuous = "blank"), # the plots above the diagonal will just be blank
+          lower = list(continuous = wrap("smooth", method = "lm", alpha = 0.7)), # plots below diagonal will be a scatterplot with a geom_smooth (points slightly transparent to see things better)
+          columnLabels = c("Temperature", "pH", "Total Alkalinity"), # change names of columns
+          switch = "both") + # switches labels from top/right to bottom/left
+  theme_bw() 
+
+ggsave(here("Week4", "Output", "w4b_homework_plot.jpeg"), width = 7, height = 5)
+```
+
+
+
+
+
+Another version of the plot with color by Site but I can't get the legend (by site) to work and it's 10 pm and I'm too lazy to do the workaround way of getting a legend from another plot and using a facet grid to place it where I want next to this plot, so this version will just live in here because I think it looks cool and didn't want to delete it
+```{r}
+ChemData_day_select %>%
+  ggpairs(columns = c("Temp_in", "pH", "TA"),  # this specifies which variables we want in our columns
+          ggplot2::aes(color = Site, alpha = 0.7), # color by site and make things a bit transparent to see better
+          diag = list(continuous = "densityDiag"), # diagonal is density plot, with some transparency bc of the overlap
+          upper = list(continuous = "blank"), # the plots above the diagonal will just be blank
+          lower = list(continuous = wrap("smooth", method = "lm")), # plots below diagonals will be a scatterplot with a geom_smooth by Site
+          columnLabels = c("Temperature", "pH", "Total Alkalinity"), # change names of columns
+          legends = TRUE,
+          switch = "both") + # switches labels from top/right to bottom/left
+  theme_bw() + 
+  scale_color_manual(values = c("#2a2550", "#e04d01")) + # changes color of the points in scatterplots
+  scale_fill_manual(values = c("#2a2550", "#e04d01"))  # changes color of the density plots
+```
+

@@ -113,6 +113,6 @@ ChemData_day_select %>%
   scale_color_manual(values = c("#2a2550", "#e04d01")) + # changes color of the points in scatterplots
   scale_fill_manual(labels = c("Black Point", "Wailupe"), values = c("#2a2550", "#e04d01"))  # set labels for legend, changes color of the density plots
 
-
+ggsave(here("Week4", "Output", "w4b_homework_plot.jpeg"), width = 7, height = 5)
 ```
 

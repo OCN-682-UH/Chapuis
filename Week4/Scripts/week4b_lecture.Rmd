@@ -1,0 +1,146 @@
+---
+title: "week4b_lecture"
+author: "Micaela Chapuis"
+date: "2024-09-18"
+output: html_document
+---
+
+# Week 4 Online Lecture
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+# Load data
+```{r}
+ChemData <- read_csv(here("Week4", "Data", "chemicaldata_maunalua.csv"))
+View(ChemData)
+```
+
+Looking at it
+```{r}
+glimpse(ChemData)
+```
+
+```{r}
+ChemData_clean <- ChemData %>% filter(complete.cases(.)) # filters out everything that isn't a complete row
+
+ChemData_clean
+```
+
+### Separate Function
+Tide_time has two types of data in it (low_day), but we want it in separate columns
+```{r}
+ChemData_clean <- ChemData %>%
+  drop_na() %>% # filters out everything that isn't a complete row
+  separate(col = Tide_time, # choosing the tide time col
+           into = c("Tide", "Time"), # separate into two columns, tide and time
+           sep = "_", # separate by the _
+           remove = FALSE) # keeping the original tide_time col
+
+ChemData_clean
+```
+
+
+### Unite
+If we want to combine two columns into one
+```{r}
+ChemData_clean <- ChemData %>%
+  drop_na() %>% # filters out everything that isn't a complete row
+  separate(col = Tide_time, # choosing the tide time col
+           into = c("Tide", "Time"), # separate into two columns, tide and time
+           sep = "_", # separate by the _
+           remove = FALSE) %>% # keeping the original tide_time col
+  unite(col = "Site_Zone", # the name of the NEW col
+          c(Site,Zone), # the columns to unite
+        sep = ".", # let's put a . in the middle
+        remove = FALSE) # keep the original
+
+ChemData_clean
+```
+
+
+### Pivoting data between wide and long
+Wide: one observation per row and all the different variables are columns
+Long: one unique measurement per row and all the info about that measurement in the same row
+
+wide to long: pivot_longer()
+long to wide: pivot_wider()
+
+#### Wide to Long
+```{r}
+ChemData_long <- ChemData_clean %>% 
+  pivot_longer(cols = Temp_in:percent_sgd, # the cols you want to pivot. This says select the temp to percent SGD cols
+              names_to = "Variables",  # the names of the new cols with all the column names
+              values_to = "Values") # names of the new column with all the values
+
+ChemData_long
+```
+
+Now we can calculate the mean and variance for all variables at each site
+```{r}
+ChemData_long %>%
+  group_by(Variables, Site) %>% # group by everything we want
+  summarise(Param_means = mean(Values, na.rm = TRUE), # get mean
+            Param_vars = var(Values, na.rm = TRUE)) # get variance
+```
+
+#### Challenge
+Calculate mean, variance, and standard deviation for all variables by site, zone, and tide
+```{r}
+ChemData_long %>%
+  group_by(Site, Zone, Tide) %>% # group by everything we want
+  summarise(Param_means = mean(Values, na.rm = TRUE), # get mean
+            Param_vars = var(Values, na.rm = TRUE), # get variance
+            Param_sd = sd(Values, na.rm = TRUE)) # get sd
+```
+
+#### Facet with Long data
+```{r}
+ChemData_long %>% 
+  ggplot(aes(x = Site, y = Values)) +
+  geom_boxplot() +
+  facet_wrap(~Variables, scales = "free") # w/o scales free all panels would have the same y axis scale, though they all have very different scales 
+# free affects x and y. If we only want one we'd do free_x or free_y
+```
+
+#### Long to Wide
+```{r}
+ChemData_wide <- ChemData_long %>% 
+  pivot_wider(names_from = Variables, #colums with the names for new column
+              values_from = Values) # column with the values
+
+ChemData_wide              
+```
+
+### Summary Statistics + Exporting
+Start from the beginning and work through our entire flow again, ending with the data export
+
+1) Remove all NAs
+2) Separate Tide_time into two columns 
+3) Pivot longer
+4) Group by Variable, Site, Time, and calculate means
+5) Convert back to wide
+6) Export the csv file of your summary statistics using write_csv()
+```{r}
+ChemData_clean <- ChemData %>%
+  drop_na() %>% # filters out everything that isn't a complete row
+  separate(col = Tide_time, # choosing the tide time col
+           into = c("Tide", "Time"), # separate into two columns, tide and time
+           sep = "_", # separate by the _
+           remove = FALSE) %>% # keeping the original tide_time col
+  pivot_longer(cols = Temp_in:percent_sgd, # the cols you want to pivot. This says select the temp to percent SGD cols
+              names_to = "Variables",  # the names of the new cols with all the column names
+              values_to = "Values") %>% # names of the new column with all the values
+  group_by(Variables, Site, Time) %>% # variables by site and time
+  summarise(mean_vals = mean(Values, na.rm = TRUE)) %>%
+  pivot_wider(names_from = Variables,
+              values_from = mean_vals) %>% #notice it is now mean_vals as the column name
+  write_csv(here("Week4", "Output", "online_lecture_output.csv")) #export as csv to the right folder
+
+
+ChemData_clean
+```
+

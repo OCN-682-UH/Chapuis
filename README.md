@@ -10,3 +10,5 @@ There is one folder for each week of the semester, and each of them contains thr
 **Weekly Folders:**  
 - [Week 2](https://github.com/OCN-682-UH/Chapuis/tree/main/Week2)
 - [Week 3](https://github.com/OCN-682-UH/Chapuis/tree/main/Week3)
+- [Week 4](https://github.com/OCN-682-UH/Chapuis/tree/main/Week4)
+- [Week 5](https://github.com/OCN-682-UH/Chapuis/tree/main/Week5)

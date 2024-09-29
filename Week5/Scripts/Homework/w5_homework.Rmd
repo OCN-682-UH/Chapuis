@@ -32,38 +32,68 @@ Look at data
 CondData # date is a character
 DepthData # date is a datetime already
 ```
-```{r}
-#CondData$date <- as_datetime(CondData$date)
-CondData
-```
 
 
-
-## Converting date columns
+## Converting date columns + rounding CondData 
 Well, just one column, the other one is already a datetime
 ```{r}
-CondData$date <- as.character(CondData$date)
-CondData$date <- mdy_hms(CondData$date) # this works great but doesn't work if I try to make it all one line
+CondData <- CondData %>% 
+            mutate(date = mdy_hms(date)) %>%  # converts to datetime 
+            mutate(date = round_date(date, unit = "10 second")) #rounds to the nearest 10 seconds
+  
+#DepthData <- DepthData %>%       # it's already a datetime but this is what code would be if I needed it
+#             mutate(date = mdy_hms(date)) 
 
-# DepthData$date <- as.character(DepthData$date)
-# DepthData$date <- mdy_hms(DepthData$date) # this is what the code would be if I needed it
-
-CondData
-DepthData
-```
-
-## Rounding CondData
-```{r}
-CondData$date <- round_date(CondData$date, unit = "10 second")
-CondData
+CondData # view
+DepthData # view
 ```
 
 ## Join Dataframes
 Using inner join because it keeps only complete data in both datasets
 ```{r}
-all_data <- inner_join(CondData, DepthData) %>% # joins by date because it's the only thing they have in common
+all_data <- inner_join(CondData, DepthData) # joins by date because it's the only thing they have in common
 # only keeping the rows where all things were recorded at the same times
-all_data
+
+all_data # view
 ```
 
-round date to nearest minute, take averages grouped by date (pivot long if i want to), make scatterplot with line of each variable over time
+
+## Taking averages of the variables by minute + plotting
+```{r}
+all_data %>% select(date, Temperature, Salinity, Depth) %>% # we don't need Serial or Absolute Pressure
+  
+             mutate(minutes = minute(date)) %>% # make a new column with minutes extracted
+  
+  # Pivoting to long to make taking average easier
+             pivot_longer(cols=c(Temperature:Depth), # columns I want to pivot
+                          names_to = "Parameter", # name of the new column with variable names
+                          values_to = "Value") %>% # name of new column with values
+  
+             group_by(minutes, Parameter) %>% # group by each unique minute and each parameter
+ 
+             summarise(Mean = mean(Value)) %>% # take the mean by minute of each parameter 
+  
+  # Make Plot
+             ggplot(aes(x= minutes, y = Mean, color = Parameter)) +
+                geom_point(size = 1, alpha = 0.8) + # using points
+                geom_line() +  # connect points with lines
+                facet_wrap(~Parameter, 
+                           ncol =1, # horizontally faceted by Parameter
+                           scales = "free", # they each have their own y scale
+                           labeller = labeller(Parameter = c(`Depth` = "Depth (m)", # set facet title names (assuming units)
+                                                             `Salinity` = "Salinity (ppt)",
+                                                             `Temperature` = "Temperature (°C)"))) + 
+                scale_color_manual(values = c("#125B9A", "#86D293", "#F05A7E")) +  # set colors manually
+                theme_bw() + # theme
+                labs(x = "Minute",   # set labels
+                     y = "Average Value (Note different scales)",
+                     title = "Depth, Salinity and Temperature Averaged by Minute") +
+                theme(axis.title = element_text(size = 12), # making all the text bigger
+                      axis.text = element_text(size = 11),
+                      legend.position = "none") + # don't need this legend because we have the facet titles
+                scale_x_continuous(breaks = seq(from = 0, to = 60, by = 10)) # setting the x axis ticks every 10 mins
+
+
+ggsave(here("Week5", "Output", "Homework", "w5_homework.jpeg"), width = 7, height = 5)
+```
+

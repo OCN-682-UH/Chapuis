@@ -125,8 +125,8 @@ CondData # view
 ```
 
 ```{r}
-CondData$date <- mdy_hms(CondData$date)
-
+CondData <- CondData %>% 
+            mutate(date = mdy_hms(date))
 CondData
 ```
 

@@ -1,0 +1,132 @@
+---
+title: "w5b_lecture"
+author: "Micaela Chapuis"
+date: "2024-09-29"
+output: html_document
+---
+
+# Week 5 - Online Lecture
+Using lubridate, converting and manipulating dates and times
+
+Loading libraries
+```{r}
+library(tidyverse)
+library(here)
+library(lubridate)
+```
+
+## Some functions
+```{r}
+now() # current date and time
+now(tzone = "EST") # can specify timezones
+now(tzone = "GMT")
+```
+
+```{r}
+today() # today's date 
+today(tzone = "GMT") # can also specify timezones
+```
+
+```{r}
+am(now()) # is it morning?
+leap_year(now()) # is it a leap year?
+```
+ 
+
+## Date specifications for lubridate
+
+- Dates must be a character
+- Will get error if we try to convert a date when it's a factor
+
+### Converting characters into ISO date format
+```{r}
+ymd("2021-02-24") # converts character into ymd date
+```
+
+```{r}
+mdy("February 24 2021") # converts character into mdy date
+```
+
+```{r}
+dmy ("24/02/2021") # converts character into dmy date
+```
+
+### Date and Times
+```{r}
+ymd_hms("2021-02-24 10:22:20 PM")
+mdy_hms("02/24/2021 22:22:20")
+mdy_hm("February 24 2021 10:22 PM") # didn't give seconds so output is 0 seconds
+```
+
+
+## Extracting specific date or time elements from datetimes
+```{r}
+# make a character string
+datetimes <- c("02/24/2021 22:22:20",
+               "02/25/2021 11:21:10",
+               "02/26/2021 8:01:52")
+```
+
+```{r}
+#convert to datetimes
+datetimes <- mdy_hms(datetimes)
+```
+
+```{r}
+# extract stuff
+month(datetimes, label = TRUE) # label makes it so it gives us month name rather than number (makes month a factor!)
+
+month(datetimes, label = TRUE, abbr = FALSE) # will give full month name rather than abbreviation 
+```
+
+```{r}
+day(datetimes) # extract day
+wday(datetimes, label = TRUE) # extract day of the week (with name)
+```
+
+```{r}
+hour(datetimes)
+minute(datetimes)
+seconds(datetimes)
+```
+
+
+## Adding dates and times
+```{r}
+datetimes + hours(4) # adds 4 hours 
+# notice it's hourS, not hour as before
+```
+hour() extracts the hour component from a time and hours() is used to add hours to a datetime
+
+```{r}
+datetimes + days(2) # adds 2 days 
+# same as hours, days() != day()
+```
+
+Can do this ^ with minutes(), seconds(), months(), years(), etc
+
+
+## Rounding dates
+```{r}
+round_date(datetimes, "minute") # round to nearest minute
+round_date(datetimes, "5 mins") # round to nearest 5 minute
+```
+
+## Challenge
+Read in conductivity data (CondData.csv) and convert the date column to a datetime. 
+Data were collected every 10 seconds. 
+
+### load in data
+```{r}
+CondData <-read_csv(here("Week5","Data", "CondData.csv"))
+
+CondData # view
+# Date is already a character
+```
+
+```{r}
+CondData$date <- mdy_hms(CondData$date)
+
+CondData
+```
+

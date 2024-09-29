@@ -1,0 +1,69 @@
+---
+title: "w5_homework"
+author: "Micaela Chapuis"
+date: "2024-09-29"
+output: html_document
+---
+
+# Week 5 Homework
+
+* Read in conductivity and depth data
+* Convert date columns appropriately
+* Round the conductivity data to the nearest 10 seconds so it matches with the depth data
+* Join the two dataframes together (with no NAs, so a join where only exact matches between the two dfs are kept)
+* Take averages of date, depth, temp, and salinity by minute
+* Make any plot using the averaged data
+
+## Loading libraries
+```{r}
+library(tidyverse)
+library(here)
+library(lubridate)
+```
+
+## Loading in data
+```{r}
+CondData <-read_csv(here("Week5","Data", "CondData.csv"))
+DepthData <- read_csv(here("Week5", "Data", "DepthData.csv"))
+```
+
+Look at data
+```{r}
+CondData # date is a character
+DepthData # date is a datetime already
+```
+```{r}
+#CondData$date <- as_datetime(CondData$date)
+CondData
+```
+
+
+
+## Converting date columns
+Well, just one column, the other one is already a datetime
+```{r}
+CondData$date <- as.character(CondData$date)
+CondData$date <- mdy_hms(CondData$date) # this works great but doesn't work if I try to make it all one line
+
+# DepthData$date <- as.character(DepthData$date)
+# DepthData$date <- mdy_hms(DepthData$date) # this is what the code would be if I needed it
+
+CondData
+DepthData
+```
+
+## Rounding CondData
+```{r}
+CondData$date <- round_date(CondData$date, unit = "10 second")
+CondData
+```
+
+## Join Dataframes
+Using inner join because it keeps only complete data in both datasets
+```{r}
+all_data <- inner_join(CondData, DepthData) %>% # joins by date because it's the only thing they have in common
+# only keeping the rows where all things were recorded at the same times
+all_data
+```
+
+round date to nearest minute, take averages grouped by date (pivot long if i want to), make scatterplot with line of each variable over time

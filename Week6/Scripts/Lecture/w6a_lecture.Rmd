@@ -5,3 +5,39 @@ date: "2024-10-01"
 output: html_document
 ---
 
+## Notes
+
+#### Metadata in YAML
+* Always in between ---  
+* Always goes in the top of the R Markdown document and includes metadata, style and type of output (type of format it will be saved as)  
+* Always need title and output for it to work!  
+
+Example:
+
+--  
+title: "title"    
+output: 
+  html_document:       (this spacing matters!)  
+    toc: TRUE          (table of contents added)  
+    toc_float: TRUE    (this makes the table of contents float, aka follow as you scroll)  
+    theme: darkly      (we can change the theme, this one turns it into dark mode)  
+--  
+
+
+## Code Chunks 
+Customizing chunk outputs
+
+It can go inside each chunk { } 
+```{r, inlcude = FALSE}
+# this makes it so the code in this chunk specifically doesn't show up when knitted
+```
+
+Or it can be default for all chunks for the entire file
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, # always show the code throughout the file
+                      warning = FALSE) # no warnings show up throughout the file
+```
+^ This can be overriden by setting the customized output for a specific chunk later
+
+
+

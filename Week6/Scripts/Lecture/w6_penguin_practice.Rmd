@@ -16,13 +16,14 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-
 # Week 6 Lecture
-##  Practicing R Markdown with Palmer penguin data
+
+## Practicing R Markdown with Palmer penguin data
 
 Today we are going to work with the penguin data to learn *RMarkdown*
 
 ### Load Libraries
+
 ```{r}
 library(palmerpenguins)
 library(tidyverse)
@@ -30,11 +31,12 @@ library(here)
 ```
 
 ### Inspect the data
+
 ```{r}
 glimpse(penguins)
 ```
-### Making a plot!
 
+### Making a plot!
 ```{r}
 penguins %>% 
   ggplot(aes(x = species, y = body_mass_g)) +
@@ -44,4 +46,3 @@ penguins %>%
   labs(y = "Body Mass (g)", 
        x = "Species")
 ```
-

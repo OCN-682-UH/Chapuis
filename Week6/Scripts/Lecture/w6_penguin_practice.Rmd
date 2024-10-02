@@ -1,0 +1,47 @@
+---
+title: "w6_penguin_practice"
+author: "Micaela Chapuis"
+date: "2024-10-01"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float:
+      collapsed: FALSE
+    theme: journal
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+
+# Week 6 Lecture
+##  Practicing R Markdown with Palmer penguin data
+
+Today we are going to work with the penguin data to learn *RMarkdown*
+
+### Load Libraries
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(here)
+```
+
+### Inspect the data
+```{r}
+glimpse(penguins)
+```
+### Making a plot!
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, y = body_mass_g)) +
+  geom_boxplot() + 
+  geom_point(alpha = 0.3, position = "jitter") +
+  theme_bw() +
+  labs(y = "Body Mass (g)", 
+       x = "Species")
+```
+

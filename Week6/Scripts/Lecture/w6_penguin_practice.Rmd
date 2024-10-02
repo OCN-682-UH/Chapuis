@@ -2,12 +2,7 @@
 title: "w6_penguin_practice"
 author: "Micaela Chapuis"
 date: "2024-10-01"
-output: 
-  html_document:
-    toc: TRUE
-    toc_float:
-      collapsed: FALSE
-    theme: journal
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}

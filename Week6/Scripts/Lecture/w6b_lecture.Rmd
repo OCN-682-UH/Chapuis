@@ -7,3 +7,124 @@ output: html_document
 
 # Week 6 - Online Lecture
 ## Working with RMarkdown
+
+### Comments in R Markdown
+<!-- This line is commented, won't show in the document. It needs to be closed -->
+This line is not commented
+
+### Working with Figures
+We can change size, resolution, device (is it png, pdf, etc) and save in a specific folder.  
+[Click here for details](https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing)
+
+----------------------------------------------
+
+### Practice! 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../../Output/")
+```
+
+
+#### Load Libraries
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(kableExtra)
+```
+
+#### Making a plot!
+```{r w6b_penguinplot, fig.asp=1.2, fig.align='center', fig.cap="This is a boxplot of penguins", dev="pdf"}
+penguins %>% 
+  ggplot(aes(x = species, y = body_mass_g)) +
+  geom_boxplot() + 
+  geom_point(alpha = 0.3, position = "jitter") +
+  theme_bw() +
+  labs(y = "Body Mass (g)", 
+       x = "Species")
+```
+
+
+**Changing Size Options:**   
+- out.width="70%" (makes it 70% of the width)  
+- fig.width=3 (makes de width 3 inches)  
+- fig.height=4 (makes the height 4 inches)  
+- fig.asp=1.2 (changes the aspect ratio to 1.2)  
+- fig align="center"  
+
+
+
+**Saving the Figure:**  
+Set the file path for the figure using:  
+- fig.path (can put this in a global option to send ALL figures there)  
+- name your code chunk (this will be the figure name)  
+
+Place between curly braces: {r -label-}
+
+**IMPORTANT**: R automatically saves everything to the _file_ directory, NOT the _project_ directory. So we can't use the _here_ package.  
+We have to give the file path. "../" means go up a directory. So "../Output/" means go out of the Scripts folder and to the output folder.  
+
+
+We can also give it a caption with:  
+- fig.cap="This is a bopxlot of penguins"  
+
+To save the figure as a pdf instead of a png:  
+- dev="pdf"
+
+----------------------------------------------  
+  
+#### Tables
+**We can type out tables by hand**  
+The :'s on the second line indicates if it's left, center or right justified  
+The number of dashes doesn't matter  
+
+
+| Time   | Session  | Topic   |
+|:-----  |:-------: |-------: |
+| _left_ | _center_ | _right_ |
+| 1:00   | 1        | Anatomy |
+| 1:50   |          | *Break* |
+| 2:00   | 2        | Tables  |
+| 2:45   |          | *Break* |  
+
+
+**Tables with Kable**   
+Look up kable package to see all the ways we can edit our table  
+
+```{r}
+penguins %>%
+  group_by(species) %>%
+  summarise(billmean = mean(bill_length_mm, na.rm = TRUE)) %>%
+  kbl()  %>% # make it a kable table
+  kable_classic() %>% # change the format of the table
+  row_spec(2, bold = T, color = "white", background = "red") %>% # makes the second row bold and gives it specific colors
+  kable_styling(full_width = FALSE) # makes it narrower
+```
+
+**Other Table Packages**  
+[Click here](https://rfortherestofus.com/2019/11/how-to-make-beautiful-tables-in-r/)  
+Check out the _gt_ and _gtExtras_ packages  
+There are ways to add plots or images to tables! 
+
+----------------------------------------------  
+  
+#### RMarkdown Outputs
+
+**Different Themes for Outputs**  
+[Check out examples here!](https://www.datadreaming.org/posts/2018-04-11-r-markdown-theme-gallery/2018-04-11-r-markdown-theme-gallery)
+
+**Output Options**
+*github_document* makes a file that is easy to view on GitHub  
+**NOTE**: ever file type has different limitations for the YAML  
+
+[List of different types of outputs](https://rmarkdown.rstudio.com/lesson-9.html)
+
+
+----------------------------------------------
+
+#### YAML
+The {ymlthis} package has a GUI for writing yml code  
+Click *Tools* and then *Addins*, then scroll to "Write new RMarkdown or YAML file"

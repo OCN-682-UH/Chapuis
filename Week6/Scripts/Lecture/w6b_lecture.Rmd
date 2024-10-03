@@ -1,0 +1,9 @@
+---
+title: "w6b_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-03"
+output: html_document
+---
+
+# Week 6 - Online Lecture
+## Working with RMarkdown

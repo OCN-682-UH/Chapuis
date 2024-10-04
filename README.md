@@ -12,3 +12,13 @@ There is one folder for each week of the semester, and each of them contains thr
 - [Week 3](https://github.com/OCN-682-UH/Chapuis/tree/main/Week3)
 - [Week 4](https://github.com/OCN-682-UH/Chapuis/tree/main/Week4)
 - [Week 5](https://github.com/OCN-682-UH/Chapuis/tree/main/Week5)
+- [Week 6](https://github.com/OCN-682-UH/Chapuis/tree/main/Week6)
+- [Week 7](https://github.com/OCN-682-UH/Chapuis/tree/main/Week7)
+- [Week 8](https://github.com/OCN-682-UH/Chapuis/tree/main/Week8)
+- [Week 9](https://github.com/OCN-682-UH/Chapuis/tree/main/Week9)
+- [Week 10](https://github.com/OCN-682-UH/Chapuis/tree/main/Week10)
+- [Week 11](https://github.com/OCN-682-UH/Chapuis/tree/main/Week11)
+- [Week 12](https://github.com/OCN-682-UH/Chapuis/tree/main/Week12)
+- [Week 13](https://github.com/OCN-682-UH/Chapuis/tree/main/Week13)
+- [Week 14](https://github.com/OCN-682-UH/Chapuis/tree/main/Week14)
+  

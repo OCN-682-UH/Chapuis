@@ -20,41 +20,38 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.path = "../../Output/Homework/")
 ```
 
-## Load Libraries
+## Loading Libraries
 
 ```{r}
-library(palmerpenguins)
 library(tidyverse)
+library(here)
 library(reactablefmtr)
 ```
 
-## Looking at data
-
+## Loading Data
+Using environmental data from Becker and Silbiger (2020)
 ```{r}
-glimpse(penguins)
+# Environmental data from each site
+EnviroData<-read_csv(here("Week6","Data", "site.characteristics.data.csv")) %>% glimpse()
+
+#data is in long format
 ```
 
 ## Preparing Data for Table and Figure
 
-Taking means of each variable by species and storing it in *penguin_species_means* because I **need** it for both my table and my figure
-
+Taking means of each parameter by site and storing it in *site_param_means* because I **need** it for both my table and my figure
 ```{r}
-penguin_species_means <- penguins %>% 
-  # pivot to long to take the mean of each variable easily
-  pivot_longer(cols=c(bill_length_mm:body_mass_g), # columns I want to pivot
-                          names_to = "Variable", # name of the new column with variable names
-                          values_to = "Value") %>%
-  
+site_param_means <- EnviroData %>%
   # group by species and take mean of each variable
-  group_by(species, Variable) %>%
-  summarise(Mean = mean(Value, na.rm = TRUE))
+  group_by(name, parameter.measured) %>%
+  summarise(Mean = mean(values, na.rm = TRUE))
 ```
+
 
 ## Creating Table
 
-Making a table of penguin data where we can *order the data in ascending or descending order*.\
-The data is the average of each variable recorded (bill depth and length, body mass, and flipper length) by species (prepared above).\
-The data will be colored by value, with higher values being a darker pink and lower values getting lighter.
+Making a table of site data where we can *order the data in ascending or descending order*.  
+The data is the average of each parameter selected (temperature, light, algal cover, coral cover, and CCA cover) by site (prepared above).  
 
 Details:
 
@@ -65,79 +62,68 @@ Details:
 -   The examples I followed are [here.](https://kcuilla.github.io/reactablefmtr/articles/themes.html)
 
 ```{r}
-penguin_species_means %>%
+site_param_means %>%
   # pivot back to wide because I need the variables to be columns for my table
-  pivot_wider(names_from = Variable, #colums with the names for new column
+  pivot_wider(names_from = parameter.measured, #colums with the names for new column
               values_from = Mean) %>%
+  select(name, temp, light, algal.cover, coral.cover, CCA.cover) %>% # select only the parameters I want + site name
   
   ## Creating table
   reactable(
     theme = nytimes(header_font_color = "black", # set theme for the table and specify color for header (column names)
                     font_color = "grey30"), # set font color to be a bit lighter
     
-    # add column group header (Variable) above the variables
+    # add column group header (Parameter) above the variables specified
     columnGroup = list(
-      colGroup(name = "Variable", 
-               columns = c("bill_depth_mm","bill_length_mm", "body_mass_g", "flipper_length_mm"))),
+      colGroup(name = "Parameter", columns = c("temp","light", "algal.cover", "coral.cover", "CCA.cover"))),
     
-    # for each column: set the name and align it, set column width, round the number, and set colors based on numbers
+    # for each column: set the name and align it
     columns = list(
-      bill_depth_mm = colDef(name = "Bill Depth (mm)", # set the name of the column
-                             maxWidth = 100, # set column width
-                             align = "center", # center column name text
-                             cell = function(x) # this is to specify I'm manipulating the cells
-                                sprintf("%0.1f", x), # formats the number (rounded to 1 decimal)
-                             style = color_scales(penguins, colors = c("white", "#fd84a9"))), # set color scale (pink for higher values, get closer to white with lower values)
-      bill_length_mm = colDef(name = "Bill Length (mm)", # same as above
-                              maxWidth = 100,
-                              align = "center",
-                              cell = function(x)
-                                sprintf("%0.1f", x),
-                              style = color_scales(penguins, colors = c("white", "#fd84a9"))),
-      body_mass_g = colDef(name = "Body Mass (g)", # same as above
-                           maxWidth = 100,
-                           align = "center",
-                           cell = function(x)
-                               sprintf("%0.1f", x),
-                           style = color_scales(penguins, colors = c("white", "#fd84a9"))),
-      flipper_length_mm = colDef(name = "Flipper Length (mm)", # same as above
-                                 maxWidth = 100,
-                                 align = "center",
-                                 cell = function(x)
-                                    sprintf("%0.1f", x),
-                                 style = color_scales(penguins, colors = c("white", "#fd84a9"))),
-      species = colDef(maxWidth = 250, # make this column wider
-                       align = "center", # center text
-                       footer = "Source: palmerpenguins package", # add a footer with data source
-                       footerStyle = list(color = "#999999"))) # make footer text a lighter color
-  )
+      name = colDef(name = "Site", # column name
+                    align = "center"), # center column
+      temp = colDef(name = "Temperature (°C)", # same as above
+                    align = "center"),
+      light = colDef(name = "Light", # same as above
+                     align = "center"),
+      algal.cover = colDef(name = "Algae Cover (%)", # same as above
+                           align = "center"),
+      coral.cover = colDef(name = "Coral Cover (%)", # same as above
+                           align = "center"),
+      CCA.cover = colDef(name = "CCA Cover (%)", # same as above
+                         align = "center"))) %>%
+  
+  add_source(source = "Source: Becker and Silbiger (2020)", # add data source below table
+             font_color = "#999999")
 ```
 
 ## Making a Figure
 
 Making a *Lollipop Chart* ([example here](https://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html))
 
-```{r w6_homework}
-penguin_species_means %>%
-  ggplot(aes(x=species, y=Mean, color = species)) + 
-  facet_wrap(~Variable, # facet by variable
+```{r w6_homework, fig.asp=1.1}
+site_param_means %>%
+  filter(parameter.measured %in% c("temp", "light", "algal.cover", "coral.cover", "CCA.cover")) %>% # using only the parameters I want to plot
+  ggplot(aes(x=name, y=Mean, color = name)) + 
+  facet_wrap(~parameter.measured, # facet by variable
              scales = "free", # let each variable have its own scale
-             labeller = labeller(Variable = c(`bill_depth_mm` = "Bill Depth (mm)", # set facet names
-                                              `bill_length_mm` = "Bill Length (mm)",
-                                              `body_mass_g` = "Body Mass (g)",
-                                              flipper_length_mm = "Flipper Length (mm)"))) +
+             labeller = labeller(parameter.measured = c(`temp` = "Temperature (°C)", # set facet names
+                                                        `light` = "Light",
+                                                        `algal.cover` = "Algal Cover (%)",
+                                                        `coral.cover` = "Coral Cover (%)",
+                                                        `CCA.cover` = "CCA Cover (%)"))) +
   geom_point(size=5) + 
-  geom_segment(aes(x=species, # geom segment draws lines between points (x,y) and (x end, y end)
-                   xend=species,  # x and x end are both just species because we don't want the line to move horizontally
+  geom_segment(aes(x=name, # geom segment draws lines between points (x,y) and (x end, y end)
+                   xend=name,  # x and x end are both just site name because we don't want the line to move horizontally
                    y=0, 
                    yend=Mean), # vertically, line goes from the 0 until the value
                size = 1.5) + # making lines thicker
-  labs(x = "Species", # axis labels
+  labs(x = "Site", # axis labels
        y  = "Mean (Scales vary)") +
   theme_bw() +
   theme(legend.position = "none", # removing color legend because it's the same as y axis
-        axis.title = element_text(size = 12), # making all the text bigger
-        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13), # making all the text bigger
+        axis.text = element_text(size = 9),
+        axis.text.x = element_text(angle=45, hjust=0.85), # adjusting site names so they can be read
         strip.text.x = element_text(size = 12, face = "bold")) + # making facet titles bigger and bold
-  scale_color_manual(values = c("#e37b7f", "#7b95d6", "#7de37e")) # set colors
+  scale_color_manual(values = c("#00202e", "#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600")) # set colors
 ```

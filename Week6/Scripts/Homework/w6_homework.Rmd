@@ -48,7 +48,7 @@ site_param_means <- EnviroData %>%
 ```
 
 
-## Creating Table
+## Creating a Table
 
 Making a table of site data where we can *order the data in ascending or descending order*.  
 The data is the average of each parameter selected (temperature, light, algal cover, coral cover, and CCA cover) by site (prepared above).  

@@ -1,0 +1,143 @@
+---
+title: "Week 6 Homework"
+author: "Micaela Chapuis"  
+output: rmdformats::downcute
+---
+
+## Assignment Details
+
+-   Take any data and create at least one table and one figure
+-   Create a beautiful RMarkdown output → **Knit the file!**
+-   Have headings with clear explanations
+-   Use bold, italics, and lists at least once
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+# set the path for figure output
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../../Output/Homework/")
+```
+
+## Load Libraries
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(reactablefmtr)
+```
+
+## Looking at data
+
+```{r}
+glimpse(penguins)
+```
+
+## Preparing Data for Table and Figure
+
+Taking means of each variable by species and storing it in *penguin_species_means* because I **need** it for both my table and my figure
+
+```{r}
+penguin_species_means <- penguins %>% 
+  # pivot to long to take the mean of each variable easily
+  pivot_longer(cols=c(bill_length_mm:body_mass_g), # columns I want to pivot
+                          names_to = "Variable", # name of the new column with variable names
+                          values_to = "Value") %>%
+  
+  # group by species and take mean of each variable
+  group_by(species, Variable) %>%
+  summarise(Mean = mean(Value, na.rm = TRUE))
+```
+
+## Creating Table
+
+Making a table of penguin data where we can *order the data in ascending or descending order*.\
+The data is the average of each variable recorded (bill depth and length, body mass, and flipper length) by species (prepared above).\
+The data will be colored by value, with higher values being a darker pink and lower values getting lighter.
+
+Details:
+
+-   Using the **{reactablefmtr}** package and the "nytimes" theme.
+
+-   Details about the package are [here.](https://kcuilla.github.io/reactablefmtr/index.html)
+
+-   The examples I followed are [here.](https://kcuilla.github.io/reactablefmtr/articles/themes.html)
+
+```{r}
+penguin_species_means %>%
+  # pivot back to wide because I need the variables to be columns for my table
+  pivot_wider(names_from = Variable, #colums with the names for new column
+              values_from = Mean) %>%
+  
+  ## Creating table
+  reactable(
+    theme = nytimes(header_font_color = "black", # set theme for the table and specify color for header (column names)
+                    font_color = "grey30"), # set font color to be a bit lighter
+    
+    # add column group header (Variable) above the variables
+    columnGroup = list(
+      colGroup(name = "Variable", 
+               columns = c("bill_depth_mm","bill_length_mm", "body_mass_g", "flipper_length_mm"))),
+    
+    # for each column: set the name and align it, set column width, round the number, and set colors based on numbers
+    columns = list(
+      bill_depth_mm = colDef(name = "Bill Depth (mm)", # set the name of the column
+                             maxWidth = 100, # set column width
+                             align = "center", # center column name text
+                             cell = function(x) # this is to specify I'm manipulating the cells
+                                sprintf("%0.1f", x), # formats the number (rounded to 1 decimal)
+                             style = color_scales(penguins, colors = c("white", "#fd84a9"))), # set color scale (pink for higher values, get closer to white with lower values)
+      bill_length_mm = colDef(name = "Bill Length (mm)", # same as above
+                              maxWidth = 100,
+                              align = "center",
+                              cell = function(x)
+                                sprintf("%0.1f", x),
+                              style = color_scales(penguins, colors = c("white", "#fd84a9"))),
+      body_mass_g = colDef(name = "Body Mass (g)", # same as above
+                           maxWidth = 100,
+                           align = "center",
+                           cell = function(x)
+                               sprintf("%0.1f", x),
+                           style = color_scales(penguins, colors = c("white", "#fd84a9"))),
+      flipper_length_mm = colDef(name = "Flipper Length (mm)", # same as above
+                                 maxWidth = 100,
+                                 align = "center",
+                                 cell = function(x)
+                                    sprintf("%0.1f", x),
+                                 style = color_scales(penguins, colors = c("white", "#fd84a9"))),
+      species = colDef(maxWidth = 250, # make this column wider
+                       align = "center", # center text
+                       footer = "Source: palmerpenguins package", # add a footer with data source
+                       footerStyle = list(color = "#999999"))) # make footer text a lighter color
+  )
+```
+
+## Making a Figure
+
+Making a *Lollipop Chart* ([example here](https://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html))
+
+```{r w6_homework}
+penguin_species_means %>%
+  ggplot(aes(x=species, y=Mean, color = species)) + 
+  facet_wrap(~Variable, # facet by variable
+             scales = "free", # let each variable have its own scale
+             labeller = labeller(Variable = c(`bill_depth_mm` = "Bill Depth (mm)", # set facet names
+                                              `bill_length_mm` = "Bill Length (mm)",
+                                              `body_mass_g` = "Body Mass (g)",
+                                              flipper_length_mm = "Flipper Length (mm)"))) +
+  geom_point(size=5) + 
+  geom_segment(aes(x=species, # geom segment draws lines between points (x,y) and (x end, y end)
+                   xend=species,  # x and x end are both just species because we don't want the line to move horizontally
+                   y=0, 
+                   yend=Mean), # vertically, line goes from the 0 until the value
+               size = 1.5) + # making lines thicker
+  labs(x = "Species", # axis labels
+       y  = "Mean (Scales vary)") +
+  theme_bw() +
+  theme(legend.position = "none", # removing color legend because it's the same as y axis
+        axis.title = element_text(size = 12), # making all the text bigger
+        axis.text = element_text(size = 11),
+        strip.text.x = element_text(size = 12, face = "bold")) + # making facet titles bigger and bold
+  scale_color_manual(values = c("#e37b7f", "#7b95d6", "#7de37e")) # set colors
+```

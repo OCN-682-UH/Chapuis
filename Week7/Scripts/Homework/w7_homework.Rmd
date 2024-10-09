@@ -18,6 +18,13 @@ Kays R, Dunn RR, Parsons AW, Mcdonald B, Perkins T, Powers S, Shell L, McDonald 
 Movebank data package:  
 McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. doi:10.5441/001/1.pf315732
 
+## Loading Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(mapdata)
+```
+
 
 ## Getting the Data
 ```{r}
@@ -39,21 +46,43 @@ cats_uk_reference <- tuesdata$cats_uk_reference
 head(cats_uk)
 head(cats_uk_reference)
 ```
-First, I want to see how many different unique cats are included, so I use length to get the count of unique tag_ids
-Because there are so many, I want to look at what their names are so I can then choose only some of them. 
+First, I want to see how many different unique cats are included, so I use length to get the count of unique tag_ids. Because there are so many, I want to look at what their names are so I can then choose only some of them. 
 ```{r}
 length(unique(cats_uk$tag_id)) # how many unique tags are there
 
 unique(cats_uk$tag_id) # what are the tag/cats names
 ```
 
-There are many columns I won't use so I only select the ones I want:
-From cats_uk,  I want tag_id, timestamp, location_long, location_lat
-From cats_uk_reference, I want tag_id (for joining the datasets), animal_id, and animal_sex, age_years
+# Data Processing
+Joining datasets, selecting columns I want to keep, and selecting specific cat
 ```{r}
+cats <- left_join(cats_uk, cats_uk_reference, by = 'tag_id') %>%  # join datasets by tag id
+        select(c("tag_id", "animal_id", "timestamp", "location_long", # select columns I want to keep
+                 "location_lat", "animal_sex", "age_years")) %>% 
+        filter(tag_id %in% c("Pants-Tag")) # selecting specific cats
 
+#, "SmokeyLongnose-Tag", "Guinness-Tag", "Lightening Bugg-Tag"
 ```
 
+Creating UK dataset from mapdata package
+```{r}
+uk <- map_data("world", region = "UK")
+head(uk)
+```
 
-Only select the cats I want (the ones with the best names, obviously)
-"Pants-Tag", "SmokeyLongnose-Tag", "Guinness-Tag", "Lightening Bugg-Tag"
+## Creating Map of the UK
+```{r}
+ggplot() + 
+  geom_polygon(data = uk, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group),
+               color = "black", # add color to the lines
+               fill = "gray90") + 
+  geom_point(data = cats, 
+             aes(x = location_long,
+                 y = location_lat)) +
+  theme_minimal() +
+  coord_map(xlim = c(-5.072, -5.069), ylim = c(50.1514, 50.154))
+```
+

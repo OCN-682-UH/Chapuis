@@ -1,0 +1,206 @@
+---
+title: "w7a_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-08"
+output: html_document
+---
+
+## Notes
+
+**Some Helpful Packages**  
+(other than 'maps', 'mapproj' and 'mapdata')  
+- sf (This is for the serious GIS people. If you want to do actual spatial analyses this is the package to use)  
+- ggmap (Uses the google maps API to make maps. Really easy to use, but requires a credit card for the API...)  
+- tmap (static and interactive maps)  
+- leaflet (interactive html maps-- Awesome to use with rmakrdown files)  
+
+## Code
+
+### Loading Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(maps)
+library(mapproj)
+library(mapdata)
+```
+
+### Loading in data
+```{r}
+# Read in data on population in California by county
+popdata<-read_csv(here("Week7","Data","CApopdata.csv"))
+#read in data on number of seastars at different field sites
+stars<-read_csv(here("Week7","Data","stars.csv"))
+```
+
+
+### 'Maps' Package
+The {maps} package is a combination of functions that pair well with ggplot and base layers for maps (i.e. polygons of regions of interest).  
+- map_data("location") is the function used to pull out whatever base layer that you want
+
+This package doesn't get updated often so shouldn't be used for cases when limits really matter.  
+It's also US centric, so we can only look at states, counties, etc for the US.  
+Also this data is very coarse, so for really small islands (like Mo'orea in the world map) it will give a square-ish polygon.  
+
+We can extract polygons for different countries:  
+- Entire world:
+```{r}
+world <- map_data("world") # get data for the entire world
+head(world)
+```
+- USA (Hawaii is left out):
+```{r}
+usa <- map_data("usa")
+head(usa)
+```
+
+We can also extract data at different resolutions. For example, US states:
+```{r}
+states <- map_data("state")
+head(states)
+```
+
+```{r}
+counties <- map_data("county")
+head(counties)
+```
+
+#### Data Structure
+- **long** is longitude. Things to the west of the prime meridian are negative.
+- **lat** is latitude.
+- **order**. This just shows in which order ggplot should “connect the dots”
+- **region and subregion** tell what region or subregion a set of points surrounds.
+- **group.** This is very important! ggplot2’s functions can take a group argument which controls (amongst other things) whether adjacent points should be connected by lines. If they are in the same group, then they get connected, but if they are in different groups then they don’t. Essentially, having to points in different groups means that ggplot “lifts the pen” when going between them.
+
+#### Making a map of the world
+```{r}
+ggplot() + 
+  geom_polygon(data = world, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group,
+                   fill = region), # fill by country
+               color = "black") + # add color to the lines and fill
+  guides(fill = FALSE) + # don't want the legend
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "lightblue")) +
+  coord_map(projection = "mercator", # specify that we want to use the Mercator projection
+            xlim = c(-180,180)) # set x limits
+```
+
+Alternative projection
+```{r}
+ggplot() + 
+  geom_polygon(data = world, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group,
+                   fill = region), # fill by country
+               color = "black") + # add color to the lines and fill
+  guides(fill = FALSE) + # don't want the legend
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "lightblue")) +
+  coord_map(projection = "sinusoidal", # specify that we want to use the sinusoidal projection
+            xlim = c(-180,180)) # set x limits
+```
+
+#### Making a map of California
+```{r}
+# use the states dataset
+head(states)
+```
+
+Filter out just the California data
+```{r}
+CA_data<-states %>%
+  filter(region == "california")
+
+head(CA_data)
+```
+
+```{r}
+ggplot() + 
+  geom_polygon(data = CA_data, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group),
+               color = "black", # add color to the lines
+               fill = "turquoise") + 
+  theme_void() +  # can remove all the axis (lat/long)
+  coord_map() # default is Mercator
+```
+
+### Adding population density data!
+```{r}
+# Look at the county data we got earlier
+head(counties)[1:3,] # only showing the first 3 rows for space
+```
+
+```{r}
+# Look at county data
+head(popdata)
+```
+
+```{r}
+CApop_county<-popdata %>%
+  select("subregion" = County, Population)  %>% # rename the county column
+  inner_join(counties) %>% # join with counties
+  filter(region == "california") # some counties have same names in other states so only keep california
+
+head(CApop_county)
+```
+
+#### Map of CA population by county
+```{r}
+ggplot() + 
+  geom_polygon(data = CApop_county,
+               aes(x = long,
+                   y = lat,
+                   group=group,
+                   fill = Population),
+               color = "black") + 
+  coord_map() +
+  theme_void()
+```
+
+But LA has soo many people that it looks low pop everywhere else, so we make it log scale for easier interpretation
+```{r}
+ggplot()+
+geom_polygon(data = CApop_county, 
+             aes(x = long, 
+                 y = lat, 
+                 group = group,
+                 fill = Population),  
+             color = "black")+
+  coord_map()+
+  theme_void() +
+  scale_fill_gradient(trans = "log10") # log transform data 
+```
+
+### Adding Stars Data
+The stars dataset has the number of seastars per/m2 at different sites in California.
+
+```{r}
+head(stars)
+```
+
+```{r}
+ggplot()+
+geom_polygon(data = CApop_county, 
+             aes(x = long, 
+                 y = lat, 
+                 group = group,
+                 fill = Population),  
+             color = "black")+
+  geom_point(data = stars, # add a point at all my sites of star counts
+             aes(x = long,
+                 y = lat,
+                 size = star_no)) + # change the point size by number of stars
+  coord_map()+
+  theme_void() +
+  scale_fill_gradient(trans = "log10") +
+  labs(size = "# stars/m2") 
+
+ggsave(here("Week7","Output","Homework", "CApop.pdf"))
+```
+

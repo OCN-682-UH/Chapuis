@@ -1,8 +1,10 @@
 ---
-title: "w7_homework"
+title: "W7 Homework"
 author: "Micaela Chapuis"
 date: "2024-10-09"
-output: html_document
+output: 
+  github_document:
+    toc: true
 ---
 
 ## Assignment Details
@@ -10,12 +12,12 @@ You need to make a map using RMarkdown with one of the following datasets from p
 Make sure, as usual, that you scripts and output are saved appropriately. 
 
 ## Dataset Details
-Using the Pet Cats UK dataset available [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md)
+Using the Pet Cats UK dataset available [here.](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md)
 
-Original article:  
+**Original article:**   
 Kays R, Dunn RR, Parsons AW, Mcdonald B, Perkins T, Powers S, Shell L, McDonald JL, Cole H, Kikillus H, Woods L, Tindle H, Roetman P (2020) The small home ranges and large local ecological impacts of pet cats. Animal Conservation. doi:10.1111/acv.12563
 
-Movebank data package:  
+**Movebank data package:**    
 McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. doi:10.5441/001/1.pf315732
 
 
@@ -86,7 +88,7 @@ SmokeyMap <- get_map(SmokeyMean, zoom = 18, maptype = "satellite") # zoom 18 cut
 ```
 
 
-### Making the Map! 
+## Making the Map! 
 ```{r}
 map <- ggmap(SmokeyMap) +  # plot map made above
        geom_point(data = cats, # add cat data
@@ -118,7 +120,6 @@ map <- ggmap(SmokeyMap) +  # plot map made above
 # Animate plot by timestamp
        transition_reveal(timestamp) # this animates the plot over the days/times in the timestamp
 
-
 # Render the animation
 #animate(map, #  set the number of frames width and height of the animated map
 #        nframes = 100,
@@ -128,3 +129,8 @@ map <- ggmap(SmokeyMap) +  # plot map made above
 #Save the animated map into the Week 7 Output folder
 #anim_save(here("Week7","Output", "Homework", "SmokeyLongnosesJourney.gif"))
 ```
+
+```{r}
+knitr::include_graphics(here("Week7","Output", "Homework", "SmokeyLongnosesJourney.gif"))
+```
+

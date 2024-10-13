@@ -201,6 +201,6 @@ geom_polygon(data = CApop_county,
   scale_fill_gradient(trans = "log10") +
   labs(size = "# stars/m2") 
 
-ggsave(here("Week7","Output","Homework", "CApop.pdf"))
+ggsave(here("Week7","Output","Lecture", "CApop.pdf"))
 ```
 

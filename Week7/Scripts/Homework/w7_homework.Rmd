@@ -2,12 +2,12 @@
 title: "w7_homework"
 author: "Micaela Chapuis"
 date: "2024-10-09"
-output: html_document
+output: github_document
 ---
 
 ## Assignment Details
 You need to make a map using RMarkdown with one of the following datasets from past Tidy Tuesdays.  
-Make sure, as usual, that you scripts and output are saved appropriately.  
+Make sure, as usual, that you scripts and output are saved appropriately. 
 
 ## Dataset Details
 Using the Pet Cats UK dataset available [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md)
@@ -18,11 +18,23 @@ Kays R, Dunn RR, Parsons AW, Mcdonald B, Perkins T, Powers S, Shell L, McDonald 
 Movebank data package:  
 McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. doi:10.5441/001/1.pf315732
 
+-----------
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
 ## Loading Libraries
 ```{r}
 library(tidyverse)
 library(here)
-library(mapdata)
+library(ggmap)
+library(ggspatial) # to add scale bars and compass arrows
+library(gganimate) # to animate the points on the map
+library(gifski)    # to render the animated map into a gif
 ```
 
 
@@ -46,43 +58,78 @@ cats_uk_reference <- tuesdata$cats_uk_reference
 head(cats_uk)
 head(cats_uk_reference)
 ```
-First, I want to see how many different unique cats are included, so I use length to get the count of unique tag_ids. Because there are so many, I want to look at what their names are so I can then choose only some of them. 
+First, I want to see how many different unique cats are included, so I use length to get the count of unique tag_ids. Because there are so many, I want to look at what their names are so I can then choose only one of them (the one with the coolest name, obviously). 
 ```{r}
 length(unique(cats_uk$tag_id)) # how many unique tags are there
 
 unique(cats_uk$tag_id) # what are the tag/cats names
 ```
 
-# Data Processing
-Joining datasets, selecting columns I want to keep, and selecting specific cat
+## Data Processing
+### Joining datasets, selecting columns I want to keep, and selecting specific cat
 ```{r}
 cats <- left_join(cats_uk, cats_uk_reference, by = 'tag_id') %>%  # join datasets by tag id
-        select(c("tag_id", "animal_id", "timestamp", "location_long", # select columns I want to keep
-                 "location_lat", "animal_sex", "age_years")) %>% 
-        filter(tag_id %in% c("Pants-Tag")) # selecting specific cats
+        select(c("tag_id", "animal_id", "timestamp", "location_long", "location_lat")) %>% # select columns I want to keep  
+        filter(tag_id %in% "SmokeyLongnose-Tag") # selecting specific cat
 
-#, "SmokeyLongnose-Tag", "Guinness-Tag", "Lightening Bugg-Tag"
+# some favorites: "Pants-Tag", "SmokeyLongnose-Tag", "Guinness-Tag", "Lightening Bugg-Tag"
+# fun fact: Smokey lives in a town called Penzance in the UK
 ```
 
-Creating UK dataset from mapdata package
+
+### Getting Smokey's mean coordinates + Getting base layer centered around those 
 ```{r}
-uk <- map_data("world", region = "UK")
-head(uk)
+# Make a data frame of Smokey's mean lon and lat coordinates 
+SmokeyMean <- data.frame(lon = mean(cats$location_long), lat = mean(cats$location_lat)) # mean coordinates
+
+# Get base layer centered at those coordinates, zoom in, and make it satellite type map so we can see where Smokey goes
+SmokeyMap <- get_map(SmokeyMean, zoom = 18, maptype = "satellite") # zoom 18 cuts out two points in the tree area at the bottom, but lets us see better how many houses Smokey goes to (probably to beg for food)
 ```
 
-## Creating Map of the UK
+
+### Making the Map! 
 ```{r}
-ggplot() + 
-  geom_polygon(data = uk, 
-               aes(x = long, 
-                   y = lat, 
-                   group = group),
-               color = "black", # add color to the lines
-               fill = "gray90") + 
-  geom_point(data = cats, 
-             aes(x = location_long,
-                 y = location_lat)) +
-  theme_minimal() +
-  coord_map(xlim = c(-5.072, -5.069), ylim = c(50.1514, 50.154))
-```
+map <- ggmap(SmokeyMap) +  # plot map made above
+       geom_point(data = cats, # add cat data
+                  aes(x = location_long, 
+                      y = location_lat,
+                      group = seq_along(timestamp)), # this makes it so that the points already plotted stay on the map
+                  color = "#EA4335", # using the color of the Google Maps marker
+                  size = 3,
+                  alpha = 0.7) + 
+       theme_minimal() +
+       labs(x = "Longitude", # set labels and title
+            y = "Latitude",
+            title = "Smokey Longnose's Journey") +
+  
+# Add scale bar
+       annotation_scale(bar_cols = c("grey10", "white"), # add scale bar, make colors dark grey and white
+                        location = "tr",  # put it in the top right
+                        text_col = "white") + # make text color white so it can be seen
+  
+# Add North Arrow
+       annotation_north_arrow(location = "tl",# add a north arrow in top left
+                              height = unit(1, "cm"), # set size
+                              width = unit(1, "cm"),
+                              style = north_arrow_fancy_orienteering(text_col = 'white', # set type of arrow and colors for all its parts
+                                                                     line_col = 'white',
+                                                                     fill = 'white')) +
+       coord_sf(crs = 4326) + # necessary crs for scale bar to work
+  
+# Animate plot by timestamp
+       transition_reveal(timestamp) # this animates the plot over the days/times in the timestamp
 
+
+
+
+# Render the animation
+animate(map, #  set the duration, fps, width and height of the animated map
+        duration = 15, 
+        fps = 30, 
+        width = 600, 
+        height = 600, 
+        renderer = gifski_renderer())
+
+#Save the animated map into the Week 7 Output folder
+anim_save(here("Week7","Output", "Homework", "SmokeyLongnosesJourney.gif"))
+```

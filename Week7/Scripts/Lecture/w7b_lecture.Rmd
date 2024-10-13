@@ -1,0 +1,94 @@
+---
+title: "w7b_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-13"
+output: html_document
+---
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(ggmap)
+library(ggspatial) # to add scale bars and compass arrows
+```
+
+## Load Data
+```{r}
+ChemData <- read_csv(here("Week7", "Data", "chemicaldata_maunalua.csv"))
+
+glimpse(ChemData)
+```
+
+## Get base maps from ggmap
+get_map() is the function to get a basemap from Google maps.  
+
+Location as a string
+```{r}
+Oahu <- get_map("Oahu")
+```
+
+Then use ggmap to plot the base layer
+```{r}
+ggmap(Oahu)
+```
+
+### Getting a specific place
+
+We can also put in lat and lon coordinates to get a specific place as the **center of the map.**   
+Get *Wailupe* coordinates
+```{r}
+# Make a data frame of lon and lat coordinates
+WP <- data.frame(lon = -157.7621, lat = 21.27427) # coordinates for Wailupe
+
+# Get base layer
+Map1 <- get_map(WP)
+
+# plot it
+ggmap(Map1)
+```
+
+### Zooming in on a location
+The *zoom* argument, an integer from **3 to 20** specifying how large the spatial extent should be around the center, with 3 being the *continent level* and 20 being roughly the *single building level*
+```{r}
+Map1 <- get_map(WP, zoom = 17)
+ggmap(Map1)
+```
+
+### Change the Map Type
+We can use Google Maps types and Stadia types
+```{r}
+Map1 <- get_map(WP, zoom = 17, maptype = "satellite")
+ggmap(Map1)
+```
+
+Other option: (for some reason doesn't work but I don't actually like the stamen maps so it's fine)
+```{r}
+#Map1<-get_map(WP,zoom = 17, maptype = "stamen_watercolor", source = "stadia")
+
+#ggmap(Map1)
+```
+
+
+### Adding points and scale bar + north arrow
+```{r}
+Map1 <- get_map(WP, zoom = 17, maptype = "satellite")
+
+ggmap(Map1) +
+  geom_point(data = ChemData,
+             aes(x = Long, y = Lat, color = Salinity),
+             size = 4) +
+  scale_color_viridis_c() +
+  annotation_scale(bar_cols = c("black", "white"), # make colors black and white
+                   location = "bl") + # put it in the bottom left
+  annotation_north_arrow(location = "tl") + # add a north arrow in top left
+  coord_sf(crs = 4326) # for the scale bar to work it needs to be in this coordinate system - this is a typical coordinate reference system for a GPS (WGS84)
+```
+
+## Geocoding
+If we don't know the lat and long of the place we want, we can use geocode() to get exact locations that we can then use in maps
+```{r}
+geocode("the white house")
+geocode("University of Hawaii at Manoa")
+```
+

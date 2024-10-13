@@ -2,7 +2,7 @@
 title: "w7_homework"
 author: "Micaela Chapuis"
 date: "2024-10-09"
-output: github_document
+output: html_document
 ---
 
 ## Assignment Details
@@ -18,7 +18,6 @@ Kays R, Dunn RR, Parsons AW, Mcdonald B, Perkins T, Powers S, Shell L, McDonald 
 Movebank data package:  
 McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. doi:10.5441/001/1.pf315732
 
------------
 
 ```{r setup, include=FALSE}
 # make sure all code shows (except this chunk), but no messages or warnings

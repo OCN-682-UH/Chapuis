@@ -208,14 +208,8 @@ map <- ggmap(SmokeyMap) +  # plot map made above
 # Animate plot by timestamp
        transition_reveal(timestamp) # this animates the plot over the days/times in the timestamp
 
-# Render the animation
-#animate(map, #  set the number of frames width and height of the animated map
-#        nframes = 100,
-#        width = 600, 
-#        height = 600)
-
 #Save the animated map into the Week 7 Output folder
-#anim_save(here("Week7","Output", "Homework", "SmokeyLongnosesJourney.gif"))
+anim_save(here("Week7","Output", "Homework", "SmokeyLongnosesJourney.gif"), map)
 ```
 
 ``` r

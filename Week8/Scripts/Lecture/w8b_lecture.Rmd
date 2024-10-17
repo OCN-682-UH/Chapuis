@@ -1,0 +1,154 @@
+---
+title: "w8b_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-17"
+output: html_document
+---
+## Advanced plotting
+
+{patchwork} - bringing plots together
+{ggrepel} - repel your labels on your plots
+{gganimate} - add some animations to your plots
+{magick} - photo processing
+
+
+```{r}
+library(tidyverse)
+library(here)
+library(patchwork)
+library(ggrepel)
+library(gganimate)
+library(magick)
+library(palmerpenguins)
+```
+
+
+### Patchwork
+Easily bring your plots together.  
+
+Let's start with two simple plots from the Palmer penguin dataset
+```{r}
+# plot 1
+p1<-penguins %>%
+  ggplot(aes(x = body_mass_g, 
+             y = bill_length_mm, 
+             color = species))+
+  geom_point()
+p1
+```
+
+```{r}
+# plot 2
+p2<-penguins %>%
+  ggplot(aes(x = sex, 
+             y = body_mass_g, 
+             color = species))+
+  geom_jitter(width = 0.2)
+p2
+```
+
+Bring the plots together using simple operations
+```{r}
+p1 + p2 +
+  plot_layout(guides = "collect") + # collects all legends and puts only one on the left
+  plot_annotation(tag_levels = "A") # if I put lowercase a it would use lower case a, b, etc
+```
+
+Put one plot on top of the other
+```{r}
+p1 / p2 +
+  plot_layout(guides = "collect") + # collects all legends and puts only one on the left
+  plot_annotation(tag_levels = "A")
+```
+
+### ggrepel
+Use the mtcars dataset
+```{r}
+view(mtcars)
+```
+
+```{r}
+ggplot(mtcars, aes(x = wt, 
+                   y = mpg, 
+                   label = rownames(mtcars))) + # gets the row names and makes labels out of them
+  geom_text() + # creates a text label with the car name at the corresponding x,y coordinate
+  geom_point(color = 'red')
+```
+```{r}
+ggplot(mtcars, aes(x = wt, 
+                   y = mpg, 
+                   label = rownames(mtcars))) + # gets the row names and makes labels out of them
+  geom_text_repel() + # makes the labels move away from the points so you can read them
+  geom_point(color = 'red')
+```
+We can also use the label function instead of text
+```{r}
+ggplot(mtcars, aes(x = wt, 
+                   y = mpg, 
+                   label = rownames(mtcars))) +
+  geom_label_repel() + # creates a label and repels them
+  geom_point(color = 'red')
+```
+
+### gganimate
+
+```{r}
+
+penguins %>%
+ggplot(aes(x = body_mass_g, 
+            y = bill_depth_mm, 
+            color = species)) +
+  geom_point() +
+  transition_states( # adding transition
+     year, # what are we animating by
+     transition_length = 2, # the relative length of the transition (how long it takes to go from one year to the next)
+     state_length = 1) + # the length of the pause between transitions 
+  ease_aes("bounce-in-out") + # specify how it changes from one state to the next 
+  labs(title = "Year: {closest_state}") +
+  anim_save(here("Week8","Output", "Lecture", "mypenguingif.gif"))
+```
+
+
+### magick
+For advanced image processing
+
+
+Get a penguin pic
+```{r}
+penguin <- image_read("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS_TdFcDG2LBfSRY5ld6swoXVmy6xrZ_FQDQ&s") # read in file from online (or can read it in from our folders using here)
+penguin
+```
+
+
+Now let's put it on a penguin plot:  
+**To put it on a plot you first need to save your plot as an image.**
+```{r}
+penguins %>%
+ggplot(aes(x = body_mass_g, 
+            y = bill_depth_mm, 
+            color = species)) +
+  geom_point()
+
+ggsave(here("Week8","Output", "Lecture", "penguinplot.png"))
+```
+
+Then read in the plot as a magick image and make a composite plot
+```{r}
+penplot<-image_read(here("Week8","Output", "Lecture", "penguinplot.png"))
+out <- image_composite(penplot, penguin, offset = "+70+30")
+out
+```
+
+
+
+
+We can do this with gifs too!
+```{r}
+pengif<-image_read("https://media1.tenor.com/m/h5xD3gOTigUAAAAC/pesto-pesto-penguin.gif")
+outgif <- image_composite(penplot, pengif, gravity = "center") # gravity says where we will put it
+animation <- image_animate(outgif, fps = 10, optimize = TRUE) # because we have a gift it's an animation so we have to do this and give it fps
+animation
+
+# we can save this with anim_save
+```
+

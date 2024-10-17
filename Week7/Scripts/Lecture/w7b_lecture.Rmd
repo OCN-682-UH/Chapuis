@@ -62,7 +62,8 @@ Map1 <- get_map(WP, zoom = 17, maptype = "satellite")
 ggmap(Map1)
 ```
 
-Other option: (for some reason doesn't work but I don't actually like the stamen maps so it's fine)
+Other option: (for some reason doesn't work but I don't actually like the stamen maps so it's fine)  
+Needed to install Stadia API (https://docs.stadiamaps.com/tutorials/getting-started-in-r-with-ggmap/)
 ```{r}
 #Map1<-get_map(WP,zoom = 17, maptype = "stamen_watercolor", source = "stadia")
 

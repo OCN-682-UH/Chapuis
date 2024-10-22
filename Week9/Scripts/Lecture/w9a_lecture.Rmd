@@ -4,3 +4,218 @@ author: "Micaela Chapuis"
 date: "2024-10-22"
 output: html_document
 ---
+
+## Why Functions 
+
+- whenever you want to do a task more than once
+- keep your script clean
+- avoid mistakes with copy and paste
+- minimize places where you need to update your code
+
+## Load Libraries 
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+library(PNWColors)
+```
+
+## Making a dataframe of random numbers
+```{r}
+df <- tibble(
+  a = rnorm(10), # draws 10 random values from a normal distribution
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+head(df)
+```
+
+## Example 
+We want to rescale data in multiple columns (value - min/(max - min))  
+
+### Rescale all data individually:
+```{r}
+df<-df %>%
+  mutate(a = (a-min(a, na.rm = TRUE))/(max(a, na.rm = TRUE)-min(a, na.rm = TRUE)),
+         b = (b-min(b, na.rm = TRUE))/(max(b, na.rm = TRUE)-min(b, na.rm = TRUE)),
+         c = (c-min(c, na.rm = TRUE))/(max(c, na.rm = TRUE)-min(c, na.rm = TRUE)),
+         d = (d-min(d, na.rm = TRUE))/(max(d, na.rm = TRUE)-min(d, na.rm = TRUE)))
+
+df
+```
+
+### Instead, write a function
+
+```{r}
+rescale01 <- function(x) {
+  value<-(x-min(x, na.rm = TRUE))/(max(x, na.rm = TRUE)-min(x, na.rm = TRUE))
+  return(value)
+}
+```
+
+```{r}
+df %>%
+  mutate(a = rescale01(a),
+         b = rescale01(b),
+         c = rescale01(c),
+         d = rescale01(d))
+```
+
+There are four key steps to creating a new function:
+
+1. You need to pick a name for the function. Here I’ve used rescale01 because this function rescales a vector to lie between 0 and 1.
+2. You list the inputs, or arguments, to the function inside function. Here we have just one argument. If we had more the call would look like function(x, y, z).
+3. You place the code you have developed in body of the function, a { block that immediately follows function(...).
+4. return tells us what values we want returned when you run the function
+
+
+
+## Fahrenheit to Celsius
+```{r}
+# temp_C <- (temp_F - 32) * 5/9 # first figure out calculation for F to C
+
+fahrenheit_to_celsius <- function(temp_F) {
+  temp_C <- (temp_F - 32) * 5/9
+  return(temp_C)
+}
+```
+
+```{r}
+fahrenheit_to_celsius(32)
+```
+
+
+### Think, pair, share
+```{r}
+celsius_to_kelvin <- function(temp_C) {
+  temp_K <- temp_C + 273.15
+  return(temp_K)
+}
+```
+
+```{r}
+celsius_to_kelvin(-273.15)
+```
+
+
+## Making plots into a function
+
+Let's say you have a specifically formatted plot that you like and that you plan to use over and over again. By turning it into a function, you only have to code it once.
+
+```{r}
+pal<-pnw_palette("Lake", 3, type = "discrete") # my color palette, specifying we only want 3 discrete colors
+```
+
+```{r}
+ggplot(penguins, aes(x = body_mass_g, y = bill_length_mm, color = island))+
+  geom_point()+
+  geom_smooth(method = "lm")+ # add a linear model
+  scale_color_manual("Island", values=pal) +   # use pretty colors and another example of how to manually change the legend title for colors
+  theme_bw()
+```
+
+Now make it a function  
+{rlang} uses what is literally called a"curly-curly" {{}} within the body of the function to help us assign variables that are column names in dataframes. --> so it knows to search for those things within the dataframe
+```{r}
+myplot <- function(data, x, y) {
+  pal<-pnw_palette("Lake", 3, type = "discrete") # my color palette, specifying we only want 3 discrete colors
+
+  ggplot(data, aes(x = {{x}}, y = {{y}}, color = island)) +
+  geom_point()+
+  geom_smooth(method = "lm") + # add a linear model
+  scale_color_manual("Island", values=pal) + # use pretty colors and another example of how to manually change the legend title for colors
+  theme_bw()
+}
+```
+
+Now test:  
+```{r}
+myplot(data = penguins, x = body_mass_g, y = bill_length_mm)
+```
+
+Test with other variables:  
+```{r}
+myplot(data = penguins, x = body_mass_g, y = flipper_length_mm)
+```
+
+### Adding Defaults
+Let's say you want to create a default for the function to always default to the penguins dataset. You can set those directly in the function.
+```{r}
+myplot2 <- function(data = penguins, x, y) {
+  pal<-pnw_palette("Lake", 3, type = "discrete") # my color palette, specifying we only want 3 discrete colors
+
+  ggplot(data, aes(x = {{x}}, y = {{y}}, color = island)) +
+  geom_point()+
+  geom_smooth(method = "lm") + # add a linear model
+  scale_color_manual("Island", values=pal) + # use pretty colors and another example of how to manually change the legend title for colors
+  theme_bw()
+}
+```
+
+
+Now we can write a function and only specify x and y
+```{r}
+myplot2(x = body_mass_g, y = flipper_length_mm)
+```
+
+### Layering the plot
+Can add stuff with + like a regular ggplot
+```{r}
+myplot2(x = body_mass_g, y = flipper_length_mm) +
+  labs(x = "Body mass (g)",
+       y = "Flipper length (mm)")
+```
+
+### If-else statements
+Imagine you want a variable to be equal to a certain value if a condition is met. This is a typical problem that requires the if ... else ... construct. For instance:
+```{r}
+a <- 4 
+b <- 5
+```
+
+Suppose that if a > b then f should be = to 20, else f should be equal to 10. Using if/else we:
+```{r}
+if (a > b) { # my question
+  f <- 20 # if it is true give me answer 1
+    } else { # else give me answer 2
+  f <- 10
+}
+
+f
+```
+
+#### Back to plotting
+Using if...else... we can make our function even more flexible. Let's say we want the option of adding the geom_smooth lines. We can create a variable that if set to TRUE add the geom_smooth, otherwise print without.
+
+First add a new argument for lines and make the default TRUE for ease
+
+```{r}
+myplot<-function(data = penguins, x, y, lines=TRUE ) { # add new argument for lines
+pal<-pnw_palette("Lake",3, type = "discrete") # my color palette 
+
+if(lines==TRUE) {
+  ggplot(data, aes(x = {{x}}, y = {{y}} , color = island))+
+  geom_point()+
+  geom_smooth(method = "lm")+ # add a linear model
+  scale_color_manual("Island", values=pal)+   # use pretty colors and change the legend title
+  theme_bw()
+} else { 
+  ggplot(data, aes(x = {{x}}, y = {{y}} , color = island))+
+  geom_point()+ # no geom_smooth
+  scale_color_manual("Island", values=pal)+   # use pretty colors and change the legend title
+  theme_bw()
+  } # for the else statement
+} # for the main function
+```
+
+Testing  
+With lines:
+```{r}
+myplot(x = body_mass_g, y = flipper_length_mm) # because the default is lines = TRUE
+```
+
+Without lines:
+```{r}
+myplot(x = body_mass_g, y = flipper_length_mm, lines = FALSE)
+```
+

@@ -1,0 +1,6 @@
+---
+title: "w9a_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-22"
+output: html_document
+---

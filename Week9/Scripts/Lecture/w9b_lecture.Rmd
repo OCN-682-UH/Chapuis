@@ -1,0 +1,163 @@
+---
+title: "w9b_lecture"
+author: "Micaela Chapuis"
+date: "2024-10-23"
+output: html_document
+---
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+## Load Data
+We will use two datasets today. One from an old TidyTuesday and one using starwars data (which is part of the forcats package).
+```{r}
+income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
+```
+
+
+A factor is a specialized version of a character. It is how we truly store categorical data. The values that a factor takes are called levels. These levels allow you to order your data in specific ways. The default levels are always alphabetical. So, we need to learn how to use factors appropriately and reorder them to be specific to our analyses.  
+
+Importantly, once you convert a character into a factor, R is actually storing them as integers (i.e., 1,2,3,4...).  
+ 
+To make something a factor we put it in the factor() function
+```{r}
+fruits<-factor(c("Apple", "Grape", "Banana"))
+fruits
+```
+
+If you read in your data as read.csv() then all your strings will be automatically read in as factors, if you use read_csv() strings will be read as characters.  
+ 
+## Star Wars data
+```{r}
+glimpse(starwars)
+```
+Let's look at some information by different species in the starwars films. How many individuals of each species are present across all starwars films?
+```{r}
+starwars %>% 
+  filter(!is.na(species)) %>% # remove NAs
+  count(species, sort = TRUE)
+```
+
+There are 38 unique species, but most are really rare. Let's say we wanted to lump all the species together that had less than 3 individuals. We could use fct_lump() which converts the data into a factor and lumps it together.  
+Now it will be in alphabetical order because it's a factor. 
+```{r}
+star_counts <-starwars %>%
+              filter(!is.na(species)) %>% # remove NAs
+              mutate(species = fct_lump(species, n = 3)) %>% # anything less than 3 will be lumped into Other, anything else is counted and turned into a factor
+              count(species)
+star_counts
+```
+
+### Reordering factors
+This one is not ordered:
+```{r}
+star_counts %>%
+  ggplot(aes(x = species, y = n)) + # n is count
+  geom_col()
+```
+
+This one is ordered:
+```{r}
+star_counts %>%
+  ggplot(aes(x = fct_reorder(species, n), y = n)) + # reorder the factor of species by n
+  geom_col()
+```
+
+We can also make it descending: 
+```{r}
+star_counts %>%
+  ggplot(aes(x = fct_reorder(species, n, .desc = TRUE), y = n)) + # reorder the factor of species by n but descending
+  geom_col() +
+  labs(x = "Species")
+```
+
+### Reordering line plots
+Let's say you wanted to make a line plot and reorder the legend to match the order of the lines. We will use the income_mean dataset to illustrate this.
+```{r}
+glimpse(income_mean)
+```
+
+We will make a plot of the total income by year and quantile across all dollar types.
+```{r}
+total_income <- income_mean %>%
+  group_by(year, income_quintile) %>%
+  summarise(income_dollars_sum = sum(income_dollars)) %>% # sum income dollars 
+  mutate(income_quintile = factor(income_quintile)) # make it a factor
+```
+
+Line plot: order in legend is all wrong
+```{r}
+total_income %>%
+  ggplot(aes(x = year, y = income_dollars_sum, color = income_quintile)) +
+  geom_line()
+```
+
+We can reorder line plots by using fct_reorder2, which reorders the data by two variables
+```{r}
+total_income %>%
+  ggplot(aes(x = year, y = income_dollars_sum, color = fct_reorder2(income_quintile, year, income_dollars_sum))) + # reorder first by year, then at the last year sort by income dollar sum
+  geom_line() +
+    labs(color = "Income Quantile")
+```
+
+## Reorder levels directly in a vector
+Let's say we have a vector and we want to put it in a specific order that we say. Not necessarily because its the largest or smallest value
+
+```{r}
+x1 <- factor(c("Jan", "Mar", "Apr", "Dec")) 
+x1 # they will be alphabetical, not what we want
+```
+
+We can set the specific order of the levels
+```{r}
+x1 <- factor(c("Jan", "Mar", "Apr", "Dec"), levels = c("Jan", "Mar", "Apr", "Dec"))
+x1
+```
+
+## Subset data with factors
+Back to starwars. Let's say we instead of grouping our species that have < 3 counts into "Other" we just filter them out.
+```{r}
+starwars_clean <- starwars %>% 
+                  filter(!is.na(species)) %>% # remove NAs
+                  count(species, sort = TRUE) %>%
+                  mutate(species = factor(species)) %>% # make species a factor
+                  filter(n > 3) # only keep species that have more than 3
+starwars_clean
+```
+
+But if we check the levels of the factor, all species are still there (even though we deleted them).
+```{r}
+levels(starwars_clean$species)
+```
+So we have to add a part to droplevels() any time we filter anything out:
+```{r}
+starwars_clean <- starwars %>% 
+                  filter(!is.na(species)) %>% # remove NAs
+                  count(species, sort = TRUE) %>%
+                  mutate(species = factor(species)) %>% # make species a factor
+                  filter(n > 3)  %>% # only keep species that have more than 3
+                  droplevels() # drop the extra levels
+starwars_clean
+```
+```{r}
+levels(starwars_clean$species)
+```
+
+
+## Recode levels
+If you want to rename (or recode) a level. For example, lets recode Human to Humanoid.
+```{r}
+starwars_clean<-starwars %>% 
+  filter(!is.na(species)) %>% # remove the NAs
+  count(species, sort = TRUE) %>%
+  mutate(species = factor(species)) %>% # make species a factor 
+  filter(n>3)  %>% # only keep species that have more than 3 
+  droplevels() %>% # drop extra levels 
+  mutate(species = fct_recode(species, "Humanoid" = "Human")) # change Human to Humanoid
+
+starwars_clean
+```
+

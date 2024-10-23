@@ -60,7 +60,8 @@ intertidal <- read_csv(here("Week9", "Data", "intertidaldata.csv")) %>% glimpse(
 
 ## Data Cleaning
 
-Boooo cleaning strings (part 1)
+Boooo cleaning strings (part 1)  
+Cleaning column names
 
 ``` r
 names(intertidal) <- names(intertidal) %>% # take column names
@@ -68,12 +69,13 @@ names(intertidal) <- names(intertidal) %>% # take column names
                      str_replace_all(" ", "_") # replace all spaces with _
 ```
 
-Boooo cleaning strings (part 2)
+Boooo cleaning strings (part 2)  
+Cleaning Quadrat character data
 
 ``` r
 intertidal$Quadrat <- intertidal$Quadrat %>% 
                       str_replace_all(pattern = "\\.|[0-9]", replacement = "") %>% # replace periods or numbers with nothing
-                      str_trim # trim white spaces
+                      str_trim() # trim white spaces
 ```
 
 For the plots, I need to order the Quadrat column Low, Mid, High

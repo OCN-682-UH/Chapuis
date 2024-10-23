@@ -3,6 +3,16 @@ W9b Homework
 Micaela Chapuis
 2024-10-23
 
+- [Assignment Details](#assignment-details)
+- [Load Libraries](#load-libraries)
+- [Load in Data](#load-in-data)
+- [Joining data by site name](#joining-data-by-site-name)
+- [Cleaning Data](#cleaning-data)
+  - [Cleaning up the Quadrat strings (Low, Mid,
+    High)](#cleaning-up-the-quadrat-strings-low-mid-high)
+  - [Cleaning up the Column Names](#cleaning-up-the-column-names)
+- [Plot](#plot)
+
 ## Assignment Details
 
 Working with intertidal data. Today you will need to use skills that you

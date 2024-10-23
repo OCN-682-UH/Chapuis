@@ -2,7 +2,9 @@
 title: "W9b Homework"
 author: "Micaela Chapuis"
 date: "2024-10-23"
-output: github_document
+output: 
+  github_document:
+    toc: true
 ---
 
 ## Assignment Details

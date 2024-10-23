@@ -33,7 +33,7 @@ intertidal <- read_csv(here("Week9", "Data", "intertidaldata.csv")) %>% glimpse
 
 I want to see the average cover/counts of some variable in the low, mid, or high intertidal zone at some specific site.
 ```{r}
-mean_pcover <- function(data, site, quadrat, variable){
+mean_pcover <- function(data, site, quadrat, variable) {
   avg <- data %>% 
     filter(Site == site & Quadrat == quadrat) %>%
     summarise(average = mean({{variable}}, na.rm =TRUE))

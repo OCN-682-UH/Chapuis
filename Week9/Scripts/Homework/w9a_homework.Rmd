@@ -1,0 +1,49 @@
+---
+title: "W9a Homework"
+author: "Micaela Chapuis"
+date: "2024-10-23"
+output: 
+  github_document:
+    toc: true
+---
+
+## Assignment Details
+
+Use any dataset you would like and make two useful functions. One that is a plot and one that is not. Turn in your functions using RMarkdown with at least 2 examples per function showing its flexibility. Due, as always, at 1pm on Tuesday.
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+# set the path for figure output
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+## Load Data
+```{r}
+intertidal <- read_csv(here("Week9", "Data", "intertidaldata.csv")) %>% glimpse
+```
+
+I want to see the average cover/counts of some variable in the low, mid, or high intertidal zone at some specific site.
+```{r}
+mean_pcover <- function(data, site, quadrat, variable){
+  #average <- data %>% 
+   #          filter(Site == site && Transect == transect) %>%
+  avg <- data %>% 
+    filter(Site == site & Quadrat == quadrat) %>%
+    summarise(average = mean({{variable}}, na.rm =TRUE))
+  return(avg)
+}
+```
+
+```{r}
+mean_pcover(intertidal, "Scripps", "Mid", Mussels)
+```
+

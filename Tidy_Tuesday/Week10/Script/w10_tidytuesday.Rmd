@@ -1,0 +1,21 @@
+---
+title: "w10_tidytuesday"
+author: "Micaela Chapuis"
+date: "2024-10-31"
+output: html_document
+---
+
+https://github.com/rfordatascience/tidytuesday
+
+For full credit you must:
+Add a dedicated Tidy_Tuesday folder to your repo for your scripts and output.
+
+You must have proper script structure and file structure.
+
+You must submit in a knitted rmarkdown file. You can use any type of knit output (html, github doc, pdf, whatever you want)
+
+You must save your visual in the output folder.
+
+You must force yourself to learn at least one NEW thing each week. This could be anywhere from how you tidy the data to a new geom in ggplot, new table, new way to edit the theme, new package, etc. You can also learn something new within rmarkdown. Use this as an opportunity to really grow your coding skills. State in your markdown file what the new thing is that you learned.
+
+You DO NOT have to use the entirety of the weekly tidy tuesday dataset. In fact I encourage to subset it in some interesting way because the files can be huge

@@ -1,0 +1,28 @@
+---
+title: "Week 11 Tidy Tuesday Assignment"
+author: "Micaela Chapuis"
+date: "2024-11-01"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+## Load Libraries
+```{r}
+library(here)
+library(tidyverse)
+```
+
+## Load Data
+```{r}
+data <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-05/democracy_data.csv')
+
+```
+

@@ -1,0 +1,30 @@
+---
+title: "w12_tidytuesday"
+author: "Micaela Chapuis"
+date: "2024-11-07"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+## Load Libraries
+```{r}
+library(here)
+library(tidyverse)
+```
+
+## Load Data
+```{r}
+countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-12/countries.csv')
+country_subdivisions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-12/country_subdivisions.csv')
+former_countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-12/former_countries.csv')
+```
+
+

@@ -15,3 +15,31 @@ Make a shiny app: Use any data set to make a shiny app. Your app must have at le
 - 1 point - creativity
 - 1 point - clean and clear repository
 
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+
+## Load Libraries
+```{r}
+library(tidyverse)
+```
+
+
+## Load Data
+```{r}
+data <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-02-13/historical_spending.csv')
+```
+
+Plan: 
+
+dynamic plot:
+line plot with year on the x axis, average amount spent per year on the y axis. 
+dropdown where you choose which variable to plot (clothing, giftcards, candy, flowers, etc)
+
+
+
+

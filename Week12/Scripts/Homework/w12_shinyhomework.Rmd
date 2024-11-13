@@ -1,0 +1,17 @@
+---
+title: "W12 Shiny Code Testing - Homework"
+author: "Micaela Chapuis"
+date: "2024-11-13"
+output: github_document
+---
+
+In this document I will write the code that I will then use in my Shiny App, so I can explore the data and make sure my code works before running the app. 
+
+## Assignment Details
+Make a shiny app: Use any data set to make a shiny app. Your app must have at least one dynamic figure and one other output (can be anything). You must publish it on shinyapps.io so that we can view your app online.
+- 3 points dynamic figure
+- 3 points additional output
+- 2 points published (**add the link to your shiny app to your readme file so we can easily find it**)
+- 1 point - creativity
+- 1 point - clean and clear repository
+

@@ -22,6 +22,6 @@ There is one folder for each week of the semester, and each of them contains thr
 - [Week 13](https://github.com/OCN-682-UH/Chapuis/tree/main/Week13)
 - [Week 14](https://github.com/OCN-682-UH/Chapuis/tree/main/Week14)
 
-**Shiny App**
-https://4szq77-micaela-chapuis.shinyapps.io/chapuis/
+**Shiny App:**
+https://mchapuis.shinyapps.io/W12-ShinyHomework/
   

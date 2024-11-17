@@ -3,11 +3,11 @@
 # Using TidyTuesday data from February 2024:
 # https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-02-13/readme.md
 
-
+# Load Libraries
 library(shiny)
 library(tidyverse)
 
-# Define UI for application that draws a histogram
+# Define UI for application
 ui <- fluidPage(
 
     # Application title

@@ -5,7 +5,7 @@ account: 4szq77-micaela-chapuis
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13361557
-bundleId: 9374470
+bundleId: 9374489
 url: https://mchapuis.shinyapps.io/W12-ShinyHomework/
 version: 1
 asMultiple: FALSE

@@ -1,0 +1,13 @@
+---
+title: "w13_lecture"
+author: "Micaela Chapuis"
+date: "2024-11-19"
+output: github_document
+---
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+

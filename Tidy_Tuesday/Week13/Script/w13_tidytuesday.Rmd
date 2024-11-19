@@ -1,0 +1,59 @@
+---
+title: "W13 Tidy Tuesday"
+author: "Micaela Chapuis"
+date: "2024-11-19"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+## New thing {.bigger}
+This week I'm using a new type of RMarkdown Ouput: slides!
+
+## Load Libraries {.bigger}
+```{r}
+library(here)
+library(tidyverse)
+```
+
+## Load Data {.bigger}
+```{r}
+data <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-19/episode_metrics.csv')
+```
+
+## Data Wrangling {.bigger}
+```{r}
+data <- data %>% 
+        select(season, question_ratio, exclamation_ratio) %>% # keep only these columns
+        pivot_longer(question_ratio:exclamation_ratio, # pivot to long
+                     names_to = "Ratio", 
+                     values_to = "Value") 
+```
+
+## Plot
+### How do the proportions of exclamations and questions vary by season?
+```{r, fig.show='hide'}
+data %>% ggplot(aes(x = as.factor(season), y = Value, color = season)) + 
+          geom_boxplot() + 
+          geom_jitter(size = 1, alpha = 0.8) + # add points (jittered)
+          facet_wrap(~Ratio, # facet by type of ratio
+                     nrow = 2, # plots in two rows
+                     scales = "free", # each has their individual scale
+                     labeller = labeller(Ratio = c(exclamation_ratio = "Exclamations!", # change facet labels
+                                                   question_ratio = "Questions?"))) +
+          theme_bw() +
+          labs(x = "Season", y = "Proportion in Dialogue") + 
+          theme(legend.position="none") # remove legend, color is just for fun
+
+ggsave(here("Tidy_Tuesday", "Week13", "Output", "w13_tidytuesday.jpeg"))
+```
+---
+```{r, echo = FALSE, out.width="90%"}
+knitr::include_graphics(here("Tidy_Tuesday", "Week13", "Output", "w13_tidytuesday.jpeg")) # make plot apear in new slide
+```
+

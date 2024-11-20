@@ -11,3 +11,102 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(reprex) # reproducible example
+library(datapasta) # copy and paste
+library(styler) # copy and paste in style
+```
+
+By running code with {reprex}, you can create a reproducible example to post to Stack Overflow, Slack, GitHub, or an email to your collaborator.
+
+## Making a reprex
+Let's say we are trying to make a plot with the mpg dataset and you hit an error.
+```{r}
+mpg %>%
+  ggplot(aes(x = displ, y = hwy))%>%
+  geom_point(aes(color = class))
+```
+
+## Using real data
+Open the stars.csv file and copy and paste the first few lines into R.
+
+lat,long,star_no
+33.548,-117.805,10
+35.534,-121.083,1
+39.503,-123.743,25
+32.863,-117.24,22
+33.46,-117.671,8
+
+This is not helpful and won't run...
+
+{datapasta} helps you copy and past snippets of your data in a reproducible way.
+This time copy the code and got to Addins -> paste as tribble and then name it something.
+
+tibble::tribble(
+    ~lat,    ~long, ~star_no,
+  33.548, -117.805,      10L,
+  35.534, -121.083,       1L,
+  39.503, -123.743,      25L,
+  32.863,  -117.24,      22L,
+   33.46, -117.671,       8L
+  )
+```{r}
+data <- tibble::tribble(
+    ~lat,    ~long, ~star_no,
+  33.548, -117.805,      10L,
+  35.534, -121.083,       1L,
+  39.503, -123.743,      25L,
+  32.863,  -117.24,      22L,
+   33.46, -117.671,       8L
+  )
+```
+
+You can now use this with {reprex} to make a reproducible example that can fully run with your own data and code.
+
+----
+
+```{r}
+stars <- read_csv(here("Week13", "Data", "stars.csv"))
+```
+
+
+
+```{r}
+library(tidyverse)
+
+stars <- tibble::tribble(
+    ~lat,    ~long, ~star_no,
+  33.548, -117.805,      10L,
+  35.534, -121.083,       1L,
+  39.503, -123.743,      25L,
+  32.863,  -117.24,      22L,
+   33.46, -117.671,       8L
+  )
+
+ggplot(stars, aes(x = latitude, y = star_no)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of stars across latitude",
+       x = "Latitude",
+       y = "Number of Stars")
+
+```
+
+
+
+## Fixing classmates' code
+```{r}
+head(diamonds)
+#> Error in head(diamonds): object 'diamonds' not found
+
+diamonds%>% # don't need to both pipe the data and include it in the ggplot()
+ggplot(aes(x = carat, y = price)) + 
+      geom_point(aes(color = clarity), alpha = 0.5) +  # color by clarity
+      labs(title = paste("Price vs Carat for"), #needed chatgpt, somehow this makes the reactive labels 
+           x = "Carat", 
+           y = "Price") +
+      theme_minimal()
+#> Error in diamonds %>% ggplot(diamonds, aes(x = carat, y = price)): could not find function "%>%"
+```

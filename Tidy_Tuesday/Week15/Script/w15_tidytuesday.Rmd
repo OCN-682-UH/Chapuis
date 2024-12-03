@@ -1,0 +1,25 @@
+---
+title: "W15 Tidy Tuesday"
+author: "Micaela Chapuis"
+date: "2024-11-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+## Load Libraries
+```{r}
+
+```
+
+
+## Load Data
+```{r}
+A64_traffic <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-12-03/A64_traffic.csv')
+```
+

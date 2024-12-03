@@ -1,0 +1,6 @@
+---
+title: "w15_lecture"
+author: "Micaela Chapuis"
+date: "2024-12-03"
+output: html_document
+---

@@ -38,8 +38,14 @@ data <- cbp_resp %>%
         filter(area_of_responsibility == "Spokane Sector") %>% # filter to only see encounters in Spokane
         select(citizenship, encounter_count) %>% # keep only the columns I care about
         group_by(citizenship) %>% # group by country of citizenship
-        summarize(encounter_count = sum(encounter_count)) # add up number of individuals encountered from each country
+        summarize(encounter_count = sum(encounter_count)) # add up number of individuals encountered from each country 
 ```
+
+Rename China
+```{r}
+data$citizenship <- str_replace(data$citizenship, "CHINA, PEOPLES REPUBLIC OF", "PEOPLES REPUBLIC OF CHINA")
+```
+
 
 ## Output!
 My new thing this week is using the 'cowsay' package (and the sample function too I guess). I will have a randomly chosen animal say "country of citizenship: # individuals" for each of the countries of citizenship identified (only 13 countries in Spokane so it doesn't get too crazy)

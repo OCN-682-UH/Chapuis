@@ -2,5 +2,74 @@
 title: "w15_lecture"
 author: "Micaela Chapuis"
 date: "2024-12-03"
-output: html_document
+output: github_document
 ---
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+## For Loops!
+
+### Simple for loops
+Start with simple code
+```{r}
+print(paste("The year is", 2000))
+```
+
+Now put it in a for loop
+```{r}
+years <- c(2015:2021)
+
+for (i in years){ # set up the for loop where i is the index
+  print(paste("The year is", i)) # loop over i
+}
+```
+
+What we just did printed something over and over, but it did not save it anywhere. Let's say you want to save a new vector with all the years. To do this we need to pre-allocate space and tell R where it is going to be saved. 
+
+Create an empty dataframe called year_data with columns for year and year_name .
+```{r}
+#Pre-allocate space for the for loop in an empty matrix that is as long as the years vector
+year_data <- tibble(year =  rep(NA, length(years)),  # column name for year, repeating NA for the length of the sequence
+                    year_name = rep(NA, length(years))) # column name for the year name
+year_data
+```
+
+Now add the for loop
+
+Let's first add in the column that is going to have all the names in it. Notice that I added an index i in the column name. 
+I also am having the index go from 1:length(years), which is 1:7. I use length() because it allows me to change the number of years in the vector without having to change the for loop.
+Then fill in the year column too. 
+```{r}
+for (i in 1:length(years)){ # set up the for loop where i is the index
+  year_data$year_name[i] <- paste("The year is", years[i]) # loop over i
+  year_data$year[i]<-years[i] # loop over year
+}
+year_data
+```
+
+###  Using loops to read in multiple .csv files
+Let's say you have multiple data files where you want to perform the same action to each. You can use a for loop to do this.
+
+From the cond_data folder: using 3 files of salinity and temperature data collected from Mo'orea from a spatial survey.
+
+Read in one of the files so that you can see what it looks like.
+```{r}
+testdata <- read_csv(here("Week15", "Data", "cond_data","011521_CT316_1pcal.csv"))
+glimpse(testdata)
+```
+
+List files in a directory
+```{r}
+# point to the location on the computer of the folder
+CondPath<-here("Week_13", "data", "cond_data")
+# list all the files in that path with a specific pattern
+# In this case we are looking for everything that has a .csv in the filename
+# you can use regex to be more specific if you are looking for certain patterns in filenames
+files <- dir(path = CondPath,pattern = ".csv")
+files
+```
+

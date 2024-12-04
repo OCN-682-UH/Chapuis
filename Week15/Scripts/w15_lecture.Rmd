@@ -1,5 +1,5 @@
 ---
-title: "w15_lecture"
+title: "W15 Lecture"
 author: "Micaela Chapuis"
 date: "2024-12-03"
 output: github_document
@@ -14,12 +14,12 @@ library(here)
 ## For Loops!
 
 ### Simple for loops
-Start with simple code
+Start with simple code  
 ```{r}
 print(paste("The year is", 2000))
 ```
 
-Now put it in a for loop
+Now put it in a for loop  
 ```{r}
 years <- c(2015:2021)
 
@@ -28,9 +28,9 @@ for (i in years){ # set up the for loop where i is the index
 }
 ```
 
-What we just did printed something over and over, but it did not save it anywhere. Let's say you want to save a new vector with all the years. To do this we need to pre-allocate space and tell R where it is going to be saved. 
+What we just did printed something over and over, but it did not save it anywhere. Let's say you want to save a new vector with all the years. To do this we need to pre-allocate space and tell R where it is going to be saved.   
 
-Create an empty dataframe called year_data with columns for year and year_name .
+Create an empty dataframe called year_data with columns for year and year_name .  
 ```{r}
 #Pre-allocate space for the for loop in an empty matrix that is as long as the years vector
 year_data <- tibble(year =  rep(NA, length(years)),  # column name for year, repeating NA for the length of the sequence
@@ -38,11 +38,11 @@ year_data <- tibble(year =  rep(NA, length(years)),  # column name for year, rep
 year_data
 ```
 
-Now add the for loop
+Now add the for loop  
 
-Let's first add in the column that is going to have all the names in it. Notice that I added an index i in the column name. 
-I also am having the index go from 1:length(years), which is 1:7. I use length() because it allows me to change the number of years in the vector without having to change the for loop.
-Then fill in the year column too. 
+Let's first add in the column that is going to have all the names in it. Notice that I added an index i in the column name.   
+I also am having the index go from 1:length(years), which is 1:7. I use length() because it allows me to change the number of years in the vector without having to change the for loop.  
+Then fill in the year column too.   
 ```{r}
 for (i in 1:length(years)){ # set up the for loop where i is the index
   year_data$year_name[i] <- paste("The year is", years[i]) # loop over i
@@ -51,12 +51,12 @@ for (i in 1:length(years)){ # set up the for loop where i is the index
 year_data
 ```
 
-###  Using loops to read in multiple .csv files
-Let's say you have multiple data files where you want to perform the same action to each. You can use a for loop to do this.
+###  Using loops to read in multiple .csv files  
+Let's say you have multiple data files where you want to perform the same action to each. You can use a for loop to do this.  
 
-From the cond_data folder: using 3 files of salinity and temperature data collected from Mo'orea from a spatial survey.
+From the cond_data folder: using 3 files of salinity and temperature data collected from Mo'orea from a spatial survey.  
 
-Read in one of the files so that you can see what it looks like.
+Read in one of the files so that you can see what it looks like.  
 ```{r}
 testdata <- read_csv(here("Week15", "Data", "cond_data","011521_CT316_1pcal.csv"))
 glimpse(testdata)
@@ -65,11 +65,166 @@ glimpse(testdata)
 List files in a directory
 ```{r}
 # point to the location on the computer of the folder
-CondPath<-here("Week_13", "data", "cond_data")
+CondPath <- here("Week15", "Data", "cond_data")
+
 # list all the files in that path with a specific pattern
 # In this case we are looking for everything that has a .csv in the filename
-# you can use regex to be more specific if you are looking for certain patterns in filenames
+# we could use regex to be more specific if you are looking for certain patterns in filenames
+files <- dir(path = CondPath, pattern = ".csv")
+files
+```
+
+
+Pre-allocate space for the loop  
+Let's calculate the mean temperature and salinity from each file and save it  
+```{r}
+# make an empty dataframe that has one row for each file and 3 columns
+ cond_data <- tibble(filename =  rep(NA, length(files)),  # column name for the file name
+                   mean_temp = rep(NA, length(files)), # column name for the mean temperature
+                   mean_sal = rep(NA, length(files))) # column name for the mean salinity
+                   
+cond_data
+```
+
+For loop time!  
+
+First make sure code works before putting it in the loop
+```{r}
+raw_data <- read_csv(paste0(CondPath,"/",files[1])) # test by reading in the first file and see if it works
+# paste0 means pasting with no spaces
+# / because it's path then backslash then file name
+head(raw_data)
+```
+And write code to calculate the mean and test it first
+```{r}
+mean_temp <- mean(raw_data$Temperature, na.rm = TRUE) # calculate a mean
+mean_temp
+```
+
+
+Turning it into a for loop  
+
+First just adding the data in
+```{r}
+for (i in 1:length(files)){ # loop over 1:3 the number of files
+  raw_data <- read_csv(paste0(CondPath,"/",files[i])) # read in all files, one at a time
+  glimpse(raw_data)
+}
+```
+
+Now add in the file name to the appropriate column
+```{r}
+for (i in 1:length(files)){ # loop over 1:3 the number of files 
+  raw_data <- read_csv(paste0(CondPath,"/",files[i]))
+  #glimpse(raw_data)
+  cond_data$filename[i] <- files[i]
+} 
+
+cond_data
+```
+
+Now add in our means calculations
+```{r}
+for (i in 1:length(files)){ # loop over 1:3 the number of files 
+  raw_data <- read_csv(paste0(CondPath,"/",files[i]))
+  #glimpse(raw_data)
+  
+  cond_data$filename[i] <- files[i]
+  
+  cond_data$mean_temp[i] <- mean(raw_data$Temperature, na.rm =TRUE)
+  cond_data$mean_sal[i] <- mean(raw_data$Salinity, na.rm =TRUE)
+} 
+cond_data
+```
+
+## Purrr Package  
+**Map Functions**  
+The pattern of looping over a vector, doing something to each element and saving the results is so common that the purrr package provides a family of functions to do it for you. There is one function for each type of output:  
+  
+- map() makes a list.   
+- map_lgl() makes a logical vector.  
+- map_int() makes an integer vector.  
+- map_dbl() makes a double vector.  
+- map_chr() makes a character vector.  
+- map_df() makes a dataframe  
+  
+Each function takes a vector as input, applies a function to each piece, and then returns a new vector that’s the same length (and has the same names) as the input.  
+
+Don't have to pre-allocate space!  
+
+### Simple examples
+There 3 ways to do the same thing in a map() function:  
+
+- Use a canned function that already exists  
+
+Let's calculate the mean from a set of random numbers and do it 10 times  
+
+Create a vector from 1:10
+```{r}
+1:10 # a vector from 1 to 10 (we are going to do this 10 times)
+```
+
+for each time 1:10 make a vector of 15 random numbers based on a normal distribution
+```{r}
+1:10 %>% # the vector to iterate over
+  map(rnorm, n = 15) # calculate 15 random numbers based on a normal distribution in a list
+```
+Calculate the mean from each list
+```{r}
+1:10 %>% # the vector to iterate over
+  map(rnorm, n = 15)  %>% # calculate 15 random numbers based on a normal distribution in a list 
+  map_dbl(mean) # calculate the mean (canned function that already exists). It is now a vector which is type "double"
+```
+
+
+### Same thing different notation
+```{r}
+1:10 %>% # list 1:10
+  map(function(x) rnorm(15, x)) %>% # make your own function
+  map_dbl(mean)
+```
+
+Use a formula when you want to change the arguments within the function
+```{r}
+1:10 %>%
+  map(~ rnorm(15, .x)) %>% # changes the arguments inside the function
+  # using the ~ and the .x is used to represent the 'i'
+  map_dbl(mean)
+```
+
+### Bring in files using purrr instead of a for loop
+
+First find the files
+```{r}
+# point to the location on the computer of the folder
+CondPath <- here("Week15", "Data", "cond_data")
 files <- dir(path = CondPath,pattern = ".csv")
 files
+```
+
+Or, we can get the full file names in one less step by doing this...
+```{r}
+files <- dir(path = CondPath, pattern = ".csv", full.names = TRUE)
+# full names = TRUE gives the entire path for each one, so save the entire path name
+files
+```
+
+Next, read in the files using map instead of a for loop while retaining the filename as a column.
+```{r}
+data <- files %>% # what we're iterating over, the full path to each file
+          set_names()%>% # sets the id of each list to the file name
+          map_df(read_csv, .id = "filename") # map everything to a dataframe and put the id in a column called filename
+data
+```
+
+Now we have a regular dataframe and we can calculate means in the way we already know how! group_by filename and use summarize
+```{r}
+data <- files %>%
+          set_names()%>% # set's the id of each list to the file name
+          map_df(read_csv,.id = "filename") %>% # map everything to a dataframe and put the id in a column called filename
+          group_by(filename) %>% # pipe into whatever other code we need to use
+          summarise(mean_temp = mean(Temperature, na.rm = TRUE),
+                    mean_sal = mean(Salinity,na.rm = TRUE))
+data
 ```
 

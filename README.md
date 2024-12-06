@@ -21,7 +21,18 @@ There is one folder for each week of the semester, and each of them contains thr
 - [Week 12](https://github.com/OCN-682-UH/Chapuis/tree/main/Week12)
 - [Week 13](https://github.com/OCN-682-UH/Chapuis/tree/main/Week13)
 - [Week 14](https://github.com/OCN-682-UH/Chapuis/tree/main/Week14)
+- [Week 15](https://github.com/OCN-682-UH/Chapuis/tree/main/Week15)
+  
+[**Good Plot/Bad Plot Assignment**](https://github.com/OCN-682-UH/Chapuis/tree/main/GoodPlot_BadPlot)  
 
 **Shiny App:**
-https://mchapuis.shinyapps.io/W12-ShinyHomework/
+https://mchapuis.shinyapps.io/W12-ShinyHomework/  
+
+**Tidy Tuesday Assignments**  
+- [Week 10](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week10)  
+- [Week 11](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week11)  
+- [Week 12](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week12)  
+- [Week 13](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week13)  
+- [Week 14](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week14)  
+- [Week 15](https://github.com/OCN-682-UH/Chapuis/tree/main/Tidy_Tuesday/Week15)  
   

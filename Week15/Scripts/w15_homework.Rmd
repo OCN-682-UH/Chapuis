@@ -1,0 +1,107 @@
+---
+title: "W15 Homework"
+author: "Micaela Chapuis"
+date: "2024-12-06"
+output: github_document
+---
+```{r setup, include=FALSE}
+# make sure all code shows (except this chunk), but no messages or warnings
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+
+## Assignment Details
+You have a set of 4 .csv files in data/homework. Each of these files is a timeseries of temperature and light data collected in tide pools in Oregon by Jenn Fields. Your goal is to bring in all 4 files and calculate the mean and standard deviation of both temperature (Temp.C) and light (Intensity.lux) for each tide pool. Use both a for loop and map() functions in your script. (Basically, do it twice).  
+
+## Load Libraries
+```{r}
+library(here)
+library(tidyverse)
+```
+
+## For Loop
+
+First, let's read in a file to see what it looks like
+```{r}
+test <- read_csv(here("Week15", "Data", "homework","TP1.csv"))
+glimpse(test)
+```
+
+Now make a list of all files in the specified path
+```{r}
+filepath <- here("Week15", "Data", "homework") # specify file path
+
+files <- dir(path = filepath, pattern = ".csv") # make a list of all files in this path that match the pattern (in this case ".csv")
+
+files # view
+```
+
+
+Pre-allocate space for the for loop: making an empty dataframe that has a row for each file (each file is a tidepool) and includes the file name (tidepool number), the mean and SD for temperature, and the mean and SD for light.
+```{r}
+pool_data <- tibble(filename =  rep(NA, length(files)),  # column for the file name (tidepool number), length is the number of files we're importing
+                   mean_temp = rep(NA, length(files)), # column for the mean temperature
+                   sd_temp = rep(NA, length(files)), # column for the temperature sd
+                   mean_light = rep(NA, length(files)), # column for the mean light
+                   sd_light = rep(NA, length(files))) # column for light sd
+                   
+pool_data
+```
+
+Now check that my code will work before putting it in the loop
+```{r}
+raw_data <- read_csv(paste0(filepath,"/",files[1])) # read in the first file to make sure it works
+# paste0 gives filepath/filename.csv from our list of file names called 'files'
+head(raw_data) # it works!
+```
+
+Also test our mean and sd code before putting it in loop
+```{r}
+mean_temp <- mean(raw_data$Temp.C, na.rm = TRUE) # calculate mean temp
+mean_temp
+
+sd_temp <- sd(raw_data$Temp.C, na.rm = TRUE) # calculate sd for temp
+sd_temp
+```
+
+Actual for loop now!
+```{r}
+for (i in 1:length(files)){ # loop over the number of files listed in 'files'
+  raw_data <- read_csv(paste0(filepath,"/",files[i])) # read in each file as it iterates over the number of files in the list (1-4)
+  
+  pool_data$filename[i] <- files[i] # store the name of each file in the filename colun
+  
+  
+  pool_data$mean_temp[i] <- mean(raw_data$Temp.C, na.rm =TRUE) # calculate the mean temp for each file and store it in the corresponding row
+  pool_data$sd_temp[i] <- sd(raw_data$Temp.C, na.rm = TRUE) # calculate temp sd for each file and store it in corresponding row
+  
+  
+  pool_data$mean_light[i] <- mean(raw_data$Intensity.lux, na.rm = TRUE) # calculate mean light for each file and store it in corresponding row
+  pool_data$sd_light[i] <- sd(raw_data$Intensity.lux, na.rm = TRUE) # calculate light sd for each file and store it in corresponding row
+} 
+
+pool_data
+```
+
+## Map Functions
+Using the same filepath from above to store the full path of each file into 'files'
+```{r}
+files <- dir(path = filepath, pattern = ".csv", full.names = TRUE)
+```
+
+```{r}
+pool_data_map <- files %>% # what we're iterating over, the full path to each file
+                  set_names() %>% # sets the id of each row to the file name
+                  map_df(read_csv, .id = "filename") %>% # map everything to a dataframe and put the id in a column called filename
+  
+                  group_by(filename) %>% # group by filename (aka by tidepool)
+                  summarise(mean_temp = mean(Temp.C, na.rm = TRUE), # calculate mean temp
+                            sd_temp = sd(Temp.C, na.rm = TRUE), # calculate temp sd
+                            mean_light = mean(Intensity.lux, na.rm = TRUE), # calculate mean light
+                            sd_light = sd(Intensity.lux, na.rm = TRUE)) # calculate light sd
+
+pool_data_map
+```
+
